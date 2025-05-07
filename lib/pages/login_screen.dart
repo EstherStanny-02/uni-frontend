@@ -1,5 +1,5 @@
-import 'package:demo_app/pages/HomeScreen.dart';
-import 'package:demo_app/pages/RegistrationScreen.dart';
+import 'package:demo_app/pages/home_screen.dart';
+import 'package:demo_app/pages/registration_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +7,7 @@ class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _LoginScreenState createState() => _LoginScreenState();
 }
 

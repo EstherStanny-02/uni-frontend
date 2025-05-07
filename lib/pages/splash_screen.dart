@@ -5,16 +5,15 @@ import 'package:demo_app/utils/images/images.dart';
 import 'package:flutter/material.dart';
 
 // ignore: camel_case_types
-class Splashscreen extends StatefulWidget{
-  const Splashscreen ({super.key});
+class SplashScreen extends StatefulWidget{
+  const SplashScreen ({super.key});
 
   @override
   SplashScreenState createState() =>SplashScreenState();
 
 }
 
-// ignore: camel_case_types
-class SplashScreenState extends State<Splashscreen>{
+class SplashScreenState extends State<SplashScreen>{
   @override
   Widget build(BuildContext context){
     

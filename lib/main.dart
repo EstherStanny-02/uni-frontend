@@ -1,4 +1,4 @@
-import 'package:demo_app/pages/SplashScreen.dart';
+import 'package:demo_app/pages/splash_screen.dart';
 import 'package:demo_app/theme/theme.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +24,7 @@ class MyAppState extends State<MyApp>{
       debugShowCheckedModeBanner: false,
       title: 'Uni-Schooling',
       theme: AppThemeController.lightMode,
-      home:const Splashscreen(),
+      home:const SplashScreen(),
       
     );
   }

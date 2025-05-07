@@ -4,6 +4,7 @@ class MessageScreen extends StatefulWidget {
   const MessageScreen({super.key});
   
   @override
+  // ignore: library_private_types_in_public_api
   _MessageScreenState createState() => _MessageScreenState();
 }
 

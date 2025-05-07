@@ -1,7 +1,7 @@
 // ignore: file_names
-import 'package:demo_app/pages/ProfileScreen.dart';
-import 'package:demo_app/pages/SettingsScreen.dart';
-import 'package:demo_app/pages/messages.dart';
+import 'package:demo_app/pages/profile_screen.dart';
+import 'package:demo_app/pages/settings_screen.dart';
+import 'package:demo_app/pages/messages_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -28,7 +28,7 @@ class HomeScreen extends StatefulWidget {
   HomeScreenState createState() => HomeScreenState();
 }
 
-//Appbar Codes for home screen:
+//appBar Codes for home screen:
 class HomeScreenState extends State<HomeScreen> {
   bool _isSearching = false; // check if search is active
   final TextEditingController _searchController = TextEditingController(); 
@@ -78,6 +78,7 @@ class HomeScreenState extends State<HomeScreen> {
     //   },
     //   icon: const Icon(Icons.notifications),
     // ),
+
     IconButton(
       onPressed: () {
         setState(() {
@@ -199,48 +200,121 @@ class HomeScreenState extends State<HomeScreen> {
    
     children: [
       _buildInfoBox(
-        "Courses and Programmes",
-        Icons.book,
-        "Active Courses",
+        "Bachelor Degree in Information and Technology",
+        Icons.computer,
+        "Active Course",
         Colors.blue,
         () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const CoursesScreen(),
+              builder: (context) => const ItDetails(),
             ),
           );
         },
       ),
 
       _buildInfoBox(
-        "Lecture notes",
-        Icons.assignment,
-        "Notes",
+        "Bachelor Degree in Business Administration",
+        Icons.business,
+        "Active Course",
         Colors.green,
         () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const NotesScreen(),
+              builder: (context) => const BaDetails(),
             ),
           );
         },
       ),
       _buildInfoBox(
-        "Assignments",
-        Icons.notes,
-        "3 Pending",
+        "Bachelor Degree in Human Resources",
+        Icons.book,
+        "Active course",
         Colors.purple,
         () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const AssignmentsScreen(),
-            ),
+              builder: (context) => const HrDetails(),
+            ), 
           );
         },
       ),
+
+      _buildInfoBox(
+        "Bachelor Degree in Shipping",
+         Icons.water,
+          "Active Course", 
+          Colors.blue,
+           () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context)=> const ShippingDetails())
+            );
+           }
+           ),
+
+           _buildInfoBox(
+            "Bachelor Degree in Railway", 
+            Icons.emoji_transportation,
+             "Active Course",
+              Colors.brown, 
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context)=> const RailwayDetails())
+                );
+              }
+              ),
+
+              _buildInfoBox(
+            "Bachelor Degree in Mechanical Engineering", 
+            Icons.engineering,
+             "Active Course",
+              Colors.orangeAccent, 
+              () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context)=> const MechanicalDetails())
+                );
+              }
+              ),
+
+              _buildInfoBox(
+                "Bachelor Degree in Automobile Engineering",
+                Icons.engineering,
+                "Active Course",
+                Colors.orangeAccent,
+                () {
+                  Navigator.push(
+                    context, 
+                    MaterialPageRoute(
+                      builder: (context)=>const AutoMobile())
+                      );
+                }
+              ),
+
+              _buildInfoBox(
+                "Bachelor Degree in Computer Science", 
+                Icons.computer_outlined, 
+                "Active Course", 
+                Colors.blue,
+                 () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:(context) => const Marketing(),
+                       ),
+                    
+                    );
+                 }
+                 )
+
     ],
   ),
 ),
@@ -293,70 +367,120 @@ class HomeScreenState extends State<HomeScreen> {
 }
  }
  
+ class Marketing extends StatelessWidget {
+  const Marketing ({super.key});
+
+  @override
+  Widget build(BuildContext context){
+        return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+      ),
+      ); 
+  }
+ }
+ 
+ class AutoMobile extends StatelessWidget{
+   const AutoMobile ({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+      ),
+      ); 
+  }
+ }
+
+
+//  MEdetails codes:
+ class MechanicalDetails extends StatelessWidget {
+  const MechanicalDetails ({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+      ),
+      );
+  }
+ }
+ 
+ class RailwayDetails extends StatelessWidget {
+  const RailwayDetails ({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+      ),
+      ); 
+  }
+ }
  
 
-
-
-
- // CourseScreen Codes:
-class CoursesScreen extends StatelessWidget {
-  const CoursesScreen({super.key});
+ // ITdetails Codes:
+class ItDetails extends StatelessWidget {
+  const ItDetails({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Courses and Schedule Management'),
         backgroundColor: Colors.blue,
+        centerTitle: true,
       ),
-      body: const Center(
-        child: Text(
-          'Courses and Schedule Content',
-          style: TextStyle(fontSize: 22),
-        ),
-      ),
-    );
+      );
+                
   }
 }
 
- // NotesScreen Codes:
-class NotesScreen extends StatelessWidget {
-  const NotesScreen({super.key});
+ //BAdetails Codes:
+class BaDetails extends StatelessWidget {
+  const BaDetails({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lecture Notes'),
         backgroundColor: Colors.green,
       ),
-      body: const Center(
-        child: Text(
-          'Notes Content',
-          style: TextStyle(fontSize: 22),
-        ),
-      ),
     );
   }
 }
 
- //  AssignmentsScreen Codes:
-class AssignmentsScreen extends StatelessWidget {
-  const AssignmentsScreen({super.key});
+ //  HRdetails Codes:
+class HrDetails  extends StatelessWidget {
+  const HrDetails ({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Assignments'),
         backgroundColor: Colors.purple,
       ),
-      body: const Center(
-        child: Text(
-          'Assignments Content',
-          style: TextStyle(fontSize: 22),
-        ),
+      
+    );
+  }
+}
+// ShippingDetails codes:
+class ShippingDetails  extends StatelessWidget {
+  const ShippingDetails ({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.purple,
       ),
+      
     );
   }
 }
