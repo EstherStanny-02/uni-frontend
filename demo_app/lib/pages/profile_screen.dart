@@ -33,7 +33,6 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 20),
-
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -70,9 +69,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
-
             ElevatedButton.icon(
               onPressed: () {
                 // Placeholder for edit functionality
@@ -84,7 +81,8 @@ class ProfileScreen extends StatelessWidget {
               label: const Text("Edit Profile"),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue[800],
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 textStyle: const TextStyle(fontSize: 16),
               ),
             ),
