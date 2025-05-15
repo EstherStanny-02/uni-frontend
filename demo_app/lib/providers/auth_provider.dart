@@ -44,18 +44,22 @@ class AuthProvider with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
+        print("Backend body======> ${response.body}"); // Add this before parsing
+
         final Map<String, dynamic> responseData = json.decode(response.body);
 
-        var userData = responseData['data'];
-
-        User authUser = User.fromJson(userData);
+        User authUser = User.fromJson(responseData); 
 
         UserPreferences().saveUser(authUser);
 
         _loggedInStatus = Status.LoggedIn;
         notifyListeners();
 
-        result = {'status': true, 'message': 'Login Successful', 'user': authUser};
+        result = {
+          'status': true,
+          'message': 'Login Successful',
+          'user': authUser
+        };
       } else {
         _loggedInStatus = Status.NotLoggedIn;
         notifyListeners();
@@ -67,23 +71,15 @@ class AuthProvider with ChangeNotifier {
     } catch (error) {
       _loggedInStatus = Status.NotLoggedIn;
       notifyListeners();
-      result = {
-        'status': false,
-        'message': 'Connection error: $error'
-      };
+      result = {'status': false, 'message': 'Connection error: $error'};
     }
-    
+
     return result;
   }
 
   // Updated register method to match the required JSON payload format
-  Future<Map<String, dynamic>> register(
-    String firstName, 
-    String lastName, 
-    String username, 
-    String email, 
-    String password
-  ) async {
+  Future<Map<String, dynamic>> register(String firstName, String lastName,
+      String username, String email, String password) async {
     // Create the registration payload in the required format
     final Map<String, dynamic> registrationData = {
       'first_name': firstName,
@@ -102,20 +98,18 @@ class AuthProvider with ChangeNotifier {
         body: json.encode(registrationData),
         headers: {'Content-Type': 'application/json'},
       );
-      
+
       return await _processRegistrationResponse(response);
     } catch (error) {
       _registeredInStatus = Status.NotRegistered;
       notifyListeners();
-      
-      return {
-        'status': false, 
-        'message': 'Connection error: $error'
-      };
+
+      return {'status': false, 'message': 'Connection error: $error'};
     }
   }
 
-  Future<Map<String, dynamic>> _processRegistrationResponse(Response response) async {
+  Future<Map<String, dynamic>> _processRegistrationResponse(
+      Response response) async {
     var result;
     final Map<String, dynamic> responseData = json.decode(response.body);
 
@@ -125,10 +119,10 @@ class AuthProvider with ChangeNotifier {
       User authUser = User.fromJson(userData);
 
       UserPreferences().saveUser(authUser);
-      
+
       _registeredInStatus = Status.Registered;
       notifyListeners();
-      
+
       result = {
         'status': true,
         'message': 'Registration Successful',
@@ -137,7 +131,7 @@ class AuthProvider with ChangeNotifier {
     } else {
       _registeredInStatus = Status.NotRegistered;
       notifyListeners();
-      
+
       result = {
         'status': false,
         'message': responseData['error'] ?? 'Registration failed',
