@@ -44,11 +44,12 @@ class AuthProvider with ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        print("Backend body======> ${response.body}"); // Add this before parsing
+        print(
+            "Backend body======> ${response.body}"); // Add this before parsing
 
         final Map<String, dynamic> responseData = json.decode(response.body);
 
-        User authUser = User.fromJson(responseData); 
+        User authUser = User.fromJson(responseData);
 
         UserPreferences().saveUser(authUser);
 

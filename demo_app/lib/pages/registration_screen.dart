@@ -21,7 +21,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -36,22 +37,21 @@ class RegistrationScreenState extends State<RegistrationScreen> {
       setState(() {
         _isLoading = true;
       });
-      
+
       // Get the auth provider
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
+
       try {
         // Call register method with the required JSON payload format
         final result = await authProvider.register(
-          _firstNameController.text,
-          _lastNameController.text,
-          _usernameController.text,
-          _emailController.text,
-          _passwordController.text
-        );
-        
+            _firstNameController.text,
+            _lastNameController.text,
+            _usernameController.text,
+            _emailController.text,
+            _passwordController.text);
+
         if (!mounted) return; // Check if widget is still mounted
-        
+
         setState(() {
           _isLoading = false;
         });
@@ -59,9 +59,10 @@ class RegistrationScreenState extends State<RegistrationScreen> {
         if (result['status']) {
           // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Registration Successful! You can login now.')),
+            const SnackBar(
+                content: Text('Registration Successful! You can login now.')),
           );
-          
+
           // Navigate back to login screen and remove the registration screen from stack
           Navigator.pushAndRemoveUntil(
             context,
@@ -76,11 +77,11 @@ class RegistrationScreenState extends State<RegistrationScreen> {
         }
       } catch (e) {
         if (!mounted) return;
-        
+
         setState(() {
           _isLoading = false;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error: ${e.toString()}')),
         );
@@ -144,7 +145,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         // First Name Field
                         TextFormField(
                           controller: _firstNameController,
-                          decoration: _buildInputDecoration('First Name', Icons.person),
+                          decoration:
+                              _buildInputDecoration('First Name', Icons.person),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your first name';
@@ -157,7 +159,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         // Last Name Field
                         TextFormField(
                           controller: _lastNameController,
-                          decoration: _buildInputDecoration('Last Name', Icons.person),
+                          decoration:
+                              _buildInputDecoration('Last Name', Icons.person),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your last name';
@@ -170,7 +173,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         // Username Field
                         TextFormField(
                           controller: _usernameController,
-                          decoration: _buildInputDecoration('Username', Icons.account_circle),
+                          decoration: _buildInputDecoration(
+                              'Username', Icons.account_circle),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a username';
@@ -186,13 +190,15 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         // Email Field
                         TextFormField(
                           controller: _emailController,
-                          decoration: _buildInputDecoration('Email', Icons.email),
+                          decoration:
+                              _buildInputDecoration('Email', Icons.email),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter an email';
                             }
-                            if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(value)) {
+                            if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+                                .hasMatch(value)) {
                               return 'Enter a valid email address';
                             }
                             return null;
@@ -204,7 +210,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: true,
-                          decoration: _buildInputDecoration('Password', Icons.lock),
+                          decoration:
+                              _buildInputDecoration('Password', Icons.lock),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a password';
@@ -221,7 +228,8 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         TextFormField(
                           controller: _passwordConfirmController,
                           obscureText: true,
-                          decoration: _buildInputDecoration('Confirm Password', Icons.lock),
+                          decoration: _buildInputDecoration(
+                              'Confirm Password', Icons.lock),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please confirm your password';
@@ -243,17 +251,19 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             onPressed: _isLoading ? null : _submitForm,
-                            child: _isLoading 
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : const Text(
-                                  'Register',
-                                  style: TextStyle(fontSize: 18, color: Colors.white),
-                                ),
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : const Text(
+                                    'Register',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                  ),
                           ),
                         ),
-                        
+
                         const SizedBox(height: 20),
-                        
+
                         // Login Link
                         RichText(
                           text: TextSpan(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class AppThemeColor {
   static const primarycolor = Color.fromARGB(255, 0, 132, 112);
   static const darkmode = Color.fromARGB(255, 0, 96, 81);
@@ -12,27 +13,25 @@ class AppThemeColor {
 
 class AppThemeController {
   static final lightMode = ThemeData(
-    primaryColor: AppThemeColor.primarycolor,
-    primaryColorLight: AppThemeColor.greenBrighter,
-    primaryColorDark: AppThemeColor.darkmode,
-    cardColor:const Color.fromARGB(255, 227, 227, 227),
-    highlightColor: AppThemeColor.brightness,
-    canvasColor:const Color.fromARGB(255, 205, 218, 216),
-    hintColor:const Color.fromARGB(255, 33, 33, 33),
-    secondaryHeaderColor:const Color.fromARGB(255, 232, 232, 232),
-    focusColor: Colors.white70,
-    indicatorColor: Colors.black38
-  );
+      primaryColor: AppThemeColor.primarycolor,
+      primaryColorLight: AppThemeColor.greenBrighter,
+      primaryColorDark: AppThemeColor.darkmode,
+      cardColor: const Color.fromARGB(255, 227, 227, 227),
+      highlightColor: AppThemeColor.brightness,
+      canvasColor: const Color.fromARGB(255, 205, 218, 216),
+      hintColor: const Color.fromARGB(255, 33, 33, 33),
+      secondaryHeaderColor: const Color.fromARGB(255, 232, 232, 232),
+      focusColor: Colors.white70,
+      indicatorColor: Colors.black38);
   static final darkMode = ThemeData(
-    primaryColor: AppThemeColor.darkmode,
-    primaryColorLight: AppThemeColor.greenLower,
-    primaryColorDark: AppThemeColor.darkmode,
-    cardColor: const Color.fromARGB(179, 56, 56, 56),
-    canvasColor: const Color.fromARGB(255, 28, 129, 17),
-    highlightColor: const Color.fromARGB(255, 0, 0, 0),
-    hintColor:const Color.fromARGB(255, 255, 255, 255),
-    secondaryHeaderColor: const Color.fromARGB(255, 36, 36, 36),
-    focusColor:const Color.fromARGB(179, 56, 56, 56),
-    indicatorColor:const Color.fromARGB(218, 238, 238, 238)
-  );
+      primaryColor: AppThemeColor.darkmode,
+      primaryColorLight: AppThemeColor.greenLower,
+      primaryColorDark: AppThemeColor.darkmode,
+      cardColor: const Color.fromARGB(179, 56, 56, 56),
+      canvasColor: const Color.fromARGB(255, 28, 129, 17),
+      highlightColor: const Color.fromARGB(255, 0, 0, 0),
+      hintColor: const Color.fromARGB(255, 255, 255, 255),
+      secondaryHeaderColor: const Color.fromARGB(255, 36, 36, 36),
+      focusColor: const Color.fromARGB(179, 56, 56, 56),
+      indicatorColor: const Color.fromARGB(218, 238, 238, 238));
 }

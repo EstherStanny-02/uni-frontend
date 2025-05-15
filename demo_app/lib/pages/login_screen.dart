@@ -31,7 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     // Validate input fields
     if (username.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter both username and password')),
+        const SnackBar(
+            content: Text('Please enter both username and password')),
       );
       setState(() {
         _isLoading = false;
@@ -41,10 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Get the auth provider
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
+
     // Call login method with the required JSON payload format
     final result = await authProvider.login(username, password);
-    
+
     setState(() {
       _isLoading = false;
     });
@@ -92,21 +93,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white, // Box color
                     borderRadius: BorderRadius.circular(20),
                   ),
-
                   child: Column(
                     children: [
                       // Username Field
                       TextField(
                         controller: _usernameController,
                         decoration: InputDecoration(
-                           filled: true,
-                          fillColor:Colors.grey[100],
+                          filled: true,
+                          fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           labelText: 'Username',
-                          prefixIcon: const Icon(Icons.person,color:Colors.blue), // Person icon
+                          prefixIcon: const Icon(Icons.person,
+                              color: Colors.blue), // Person icon
                         ),
                       ),
 
@@ -117,14 +118,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
-                           filled: true,
-                          fillColor:Colors.grey[100],
+                          filled: true,
+                          fillColor: Colors.grey[100],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           labelText: 'Password',
-                          prefixIcon: const Icon(Icons.lock,color:Colors.blue), // Lock icon
+                          prefixIcon: const Icon(Icons.lock,
+                              color: Colors.blue), // Lock icon
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -138,21 +140,22 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
                           onPressed: _isLoading ? null : _login,
-                          child: _isLoading 
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 18, 
-                                  color: Colors.white,
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white)
+                              : const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
 
                 // Sign Up Link
@@ -171,7 +174,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const RegistrationScreen(),
+                                builder: (context) =>
+                                    const RegistrationScreen(),
                               ),
                             );
                           },

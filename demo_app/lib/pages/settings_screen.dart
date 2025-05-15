@@ -16,11 +16,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
-        backgroundColor:Colors.blue[900],
-        title: const Text("Settings",),
+        backgroundColor: Colors.blue[900],
+        title: const Text(
+          "Settings",
         ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -51,7 +52,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const SizedBox(height: 10),
-
           const Text(
             "Preferences",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -78,7 +78,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
           ),
           const SizedBox(height: 10),
-
           const Text(
             "General",
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -124,8 +123,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(context);
             },
           ),
-
-       
         ],
       ),
     );

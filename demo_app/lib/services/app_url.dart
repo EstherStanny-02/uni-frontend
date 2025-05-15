@@ -4,7 +4,7 @@ class AppUrl {
 
   // Use the local base URL for development
   static const String baseURL = localBaseURL;
-  
+
   // Update the endpoints with trailing slashes as required by the backend
   static const String login = "$baseURL/login/";
   static const String register = "$baseURL/register/";
