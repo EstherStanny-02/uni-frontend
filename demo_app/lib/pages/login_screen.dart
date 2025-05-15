@@ -166,3 +166,135 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 
+
+
+
+// import 'package:demo_app/pages/home_screen.dart';
+// import 'package:demo_app/pages/registration_screen.dart';
+// import 'package:demo_app/providers/auth_provider.dart';
+// import 'package:flutter/gestures.dart';
+// import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+
+// class LoginScreen extends StatefulWidget {
+//   const LoginScreen({super.key});
+// @@ -15,25 +17,48 @@ class _LoginScreenState extends State<LoginScreen> {
+//   // Controllers for the text fields
+//   final _usernameController = TextEditingController();
+//   final _passwordController = TextEditingController();
+//   bool _isLoading = false;
+
+//   // Static credentials (for testing purposes)
+//   final String _validUsername = "molly";
+//   final String _validPassword = "molly01";
+
+//   // Login function that sends data to backend
+//   void _login() async {
+//     setState(() {
+//       _isLoading = true;
+//     });
+
+//   // Login function
+//   void _login() {
+//     String enteredUsername = _usernameController.text;
+//     String enteredPassword = _passwordController.text;
+//     String username = _usernameController.text;
+//     String password = _passwordController.text;
+
+//     if (enteredUsername == _validUsername && enteredPassword == _validPassword) {
+//       Navigator.push(
+//     // Validate input fields
+//     if (username.isEmpty || password.isEmpty) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Please enter both username and password')),
+//       );
+//       setState(() {
+//         _isLoading = false;
+//       });
+//       return;
+//     }
+
+//     // Get the auth provider
+//     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+//     // Call login method with the required JSON payload format
+//     final result = await authProvider.login(username, password);
+
+//     setState(() {
+//       _isLoading = false;
+//     });
+
+//     if (result['status']) {
+//       // Navigate to home screen on successful login
+//       Navigator.pushReplacement(
+//         context,
+//         MaterialPageRoute(builder: (context) =>  const HomeScreen()),
+//         MaterialPageRoute(builder: (context) => const HomeScreen()),
+//       );
+//     } else {
+//       // Show error message
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(content: Text('Invalid username or password!')),
+//         SnackBar(content: Text(result['message'] ?? 'Login failed')),
+//       );
+//     }
+//   }
+// @@ -81,13 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
+//                             borderSide: BorderSide.none,
+//                           ),
+//                           labelText: 'Username',
+//                           prefixIcon: const Icon(Icons.person,color:Colors.blue), // Lock icon
+//                           prefixIcon: const Icon(Icons.person,color:Colors.blue), // Person icon
+//                         ),
+//                       ),
+
+//                       const SizedBox(height: 20),
+
+
+//                       // Password Field
+//                       TextField(
+//                         controller: _passwordController,
+// @@ -113,16 +137,16 @@ class _LoginScreenState extends State<LoginScreen> {
+//                             backgroundColor: Colors.blue[900],
+//                             padding: const EdgeInsets.symmetric(vertical: 12),
+//                           ),
+
+//                           onPressed: _login,
+
+//                           child: const Text(
+//                             'Login',
+//                             style: TextStyle(
+//                               fontSize: 18, 
+//                               color: Colors.white,
+//                           onPressed: _isLoading ? null : _login,
+//                           child: _isLoading 
+//                             ? const CircularProgressIndicator(color: Colors.white)
+//                             : const Text(
+//                                 'Login',
+//                                 style: TextStyle(
+//                                   fontSize: 18, 
+//                                   color: Colors.white,
+//                                 ),
+//                               ),
+//                           ),
+//                         ),
+//                       ),
+//                     ],
+// @@ -141,7 +165,6 @@ class _LoginScreenState extends State<LoginScreen> {
+//                         text: "Sign Up",
+//                         style: const TextStyle(
+//                           color: Colors.yellow,
+
+//                         ),
+//                         recognizer: TapGestureRecognizer()
+//                           ..onTap = () {
+// @@ -163,6 +186,4 @@ class _LoginScreenState extends State<LoginScreen> {
+//       ),
+//     );
+//   }
+// }
+
+
+// }
+
+
