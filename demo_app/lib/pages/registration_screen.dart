@@ -1,5 +1,9 @@
 // ignore: file_names
+import 'package:demo_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:demo_app/pages/login_screen.dart';
+import 'package:provider/provider.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -10,17 +14,77 @@ class RegistrationScreen extends StatefulWidget {
 
 class RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController = TextEditingController();
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful!')),
-      );
-      // Handle registration logic here (e.g., save user details)
+      // Check if passwords match
+      if (_passwordController.text != _passwordConfirmController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Passwords do not match!')),
+        );
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+      
+      // Get the auth provider
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      try {
+        // Call register method with the required JSON payload format
+        final result = await authProvider.register(
+          _firstNameController.text,
+          _lastNameController.text,
+          _usernameController.text,
+          _emailController.text,
+          _passwordController.text
+        );
+        
+        if (!mounted) return; // Check if widget is still mounted
+        
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (result['status']) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Registration Successful! You can login now.')),
+          );
+          
+          // Navigate back to login screen and remove the registration screen from stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false, // Remove all previous routes
+          );
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(result['message'] ?? 'Registration failed')),
+          );
+        }
+      } catch (e) {
+        if (!mounted) return;
+        
+        setState(() {
+          _isLoading = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -77,10 +141,36 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        // First Name Field
+                        TextFormField(
+                          controller: _firstNameController,
+                          decoration: _buildInputDecoration('First Name', Icons.person),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your first name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Last Name Field
+                        TextFormField(
+                          controller: _lastNameController,
+                          decoration: _buildInputDecoration('Last Name', Icons.person),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your last name';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
                         // Username Field
                         TextFormField(
                           controller: _usernameController,
-                          decoration: _buildInputDecoration('Username', Icons.person),
+                          decoration: _buildInputDecoration('Username', Icons.account_circle),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a username';
@@ -127,6 +217,23 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                         ),
                         const SizedBox(height: 20),
 
+                        // Confirm Password Field
+                        TextFormField(
+                          controller: _passwordConfirmController,
+                          obscureText: true,
+                          decoration: _buildInputDecoration('Confirm Password', Icons.lock),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please confirm your password';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 20),
+
                         // Register Button
                         SizedBox(
                           width: double.infinity,
@@ -135,11 +242,36 @@ class RegistrationScreenState extends State<RegistrationScreen> {
                               backgroundColor: Colors.blue[900],
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            onPressed: _submitForm,
-                            child: const Text(
-                              'Register',
-                              style: TextStyle(fontSize: 18, color: Colors.white),
-                            ),
+                            onPressed: _isLoading ? null : _submitForm,
+                            child: _isLoading 
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text(
+                                  'Register',
+                                  style: TextStyle(fontSize: 18, color: Colors.white),
+                                ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Login Link
+                        RichText(
+                          text: TextSpan(
+                            text: "Already have an account? ",
+                            style: const TextStyle(color: Colors.black87),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text: "Sign In",
+                                style: TextStyle(
+                                  color: Colors.blue[900],
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.pop(context);
+                                  },
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -156,9 +288,12 @@ class RegistrationScreenState extends State<RegistrationScreen> {
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _passwordConfirmController.dispose();
     super.dispose();
   }
 }
