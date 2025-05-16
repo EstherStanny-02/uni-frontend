@@ -1,21 +1,26 @@
 class User {
-  int? userId;
-  String? name;
+  String? firstName;
+  String? lastName;
+  String? userName;
   String? email;
-  String? phone;
-  String? token;
+  String? accessToken;
   String? refreshToken;
 
-  User({ this.userId,  this.name, this.email,  this.phone,   this.token, this.refreshToken});
+  User({
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.accessToken,
+    this.refreshToken,
+  });
 
-  factory User.fromJson(Map<String, dynamic> responseData) {
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
-        userId: responseData['id'],
-        name: responseData['name'],
-        email: responseData['email'],
-        phone: responseData['phone'],
-        token: responseData['access_token'],
-        refreshToken: responseData['renewal_token']
+      firstName: json['first_name'],
+      lastName: json['last_name'],
+      email: json['email']?.toString(),
+      accessToken: json['access_token']?.toString(),
+      refreshToken: json['refresh']?.toString(), // Key changed to 'refresh'
     );
   }
 }

@@ -6,11 +6,10 @@ class UserPreferences {
   Future<bool> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setInt("userId", user.userId ?? 0);
-    prefs.setString("name", user.name ?? '');
+    prefs.setString("firstName", user.firstName ?? '');
+    prefs.setString("lastName", user.lastName ?? '');
     prefs.setString("email", user.email ?? '');
-    prefs.setString("phone", user.phone ?? '');
-    prefs.setString("token", user.token ?? '');
+    prefs.setString("accessToken", user.accessToken ?? '');
     prefs.setString("renewalToken", user.refreshToken ?? '');
 
     return prefs.commit();
@@ -19,30 +18,28 @@ class UserPreferences {
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    int? userId = prefs.getInt("userId");
-    String? name = prefs.getString("name");
+    String? firstName = prefs.getString("firstName");
+    String? lastName = prefs.getString("lastName");
     String? email = prefs.getString("email");
-    String? phone = prefs.getString("phone");
-    String? token = prefs.getString("token");
+    String? token = prefs.getString("accessToken");
     String? renewalToken = prefs.getString("renewalToken");
 
     return User(
-        userId: userId,
-        name: name,
+        firstName: firstName,
         email: email,
-        phone: phone,
-        token: token,
+        accessToken: token,
+        lastName: lastName,
         refreshToken: renewalToken);
   }
 
   void removeUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.remove("name");
+    prefs.remove("firstName");
     prefs.remove("email");
-    prefs.remove("phone");
-    prefs.remove("type");
-    prefs.remove("token");
+    prefs.remove("lastName");
+    prefs.remove("accessToken");
+    prefs.remove("renewalToken");
   }
 
   Future<String?> getToken(args) async {

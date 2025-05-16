@@ -1,3 +1,3 @@
-class HeadLines{
+class HeadLines {
   static String welcomeTxt = 'welcome to school';
 }

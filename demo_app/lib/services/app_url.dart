@@ -1,12 +1,14 @@
 class AppUrl {
-  static const String liveBaseURL = "https://remote-ur/api/v1";
-  static const String localBaseURL = "http://127.0.0.1:8000/api/auth";
+  static const String baseUrl = 'http://192.168.1.163:8000/api';
 
-  // Use the local base URL for development
-  static const String baseURL = localBaseURL;
+  // Authentication endpoints
+  static const String login = '$baseUrl/auth/login/';
+  static const String register = '$baseUrl/auth/register/';
 
-  // Update the endpoints with trailing slashes as required by the backend
-  static const String login = "$baseURL/login/";
-  static const String register = "$baseURL/register/";
-  static const String forgotPassword = "$baseURL/forgot-password/";
+  // Department endpoints
+  static const String departments = '$baseUrl/academics/departments/';
+  
+  // Course endpoints
+  static const String courses = '$baseUrl/academics/courses/';
 }
+
