@@ -51,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           "Settings",
           style: TextStyle(
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         elevation: 0,
@@ -451,7 +452,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showNotificationPreferencesDialog(BuildContext context) {
     bool coursesNotifications = true;
-    bool eventsNotifications = true;
+    
 
     showDialog(
       context: context,

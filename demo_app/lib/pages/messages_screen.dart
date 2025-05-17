@@ -35,7 +35,7 @@ class _MessageScreenState extends State<MessageScreen> {
   // Example admin messages
   final List<Message> _adminMessages = [
     Message(
-      title: "Welcome to the New Semester",
+      title: "Welcome Back to School",
       content: "Dear student, Welcome to the Uni Schooling Platform. This application is designed to help you manage your academic life. We hope you find it useful.",
       timestamp: DateTime.now().subtract(const Duration(days: 2)),
     ),

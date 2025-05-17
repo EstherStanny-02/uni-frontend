@@ -1,14 +1,17 @@
-// ignore: file_names
 import 'package:demo_app/pages/login_screen.dart';
+import 'package:demo_app/services/department_service.dart';
 import 'package:demo_app/session/user_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:demo_app/pages/profile_screen.dart';
 import 'package:demo_app/pages/settings_screen.dart';
 import 'package:demo_app/pages/messages_screen.dart';
 import 'package:demo_app/models/user_model.dart';
 import 'package:demo_app/models/department.dart';
-import 'package:demo_app/services/department_service.dart';
-import 'package:demo_app/pages/course_details_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:demo_app/services/app_url.dart';
+import 'dart:convert';
+import 'dart:developer' as developer;
 
 void main() {
   runApp(const MyApp());
@@ -39,12 +42,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  final bool _isSearching = false;
-  final TextEditingController _searchController = TextEditingController();
   int _selectedIndex = 0;
   
   final List<Widget> _screens = [
-    const CoursesScreen(),
+    const DepartmentScreen(),
     const MessageScreen(),
     const ProfileScreen(),
     const SettingsScreen(),
@@ -91,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.school),
-                label: 'Courses',
+                label: 'Departments',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.message),
@@ -113,33 +114,33 @@ class HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class CoursesScreen extends StatefulWidget {
-  const CoursesScreen({super.key});
+class DepartmentScreen extends StatefulWidget {
+  const DepartmentScreen({super.key});
 
   @override
-  CoursesScreenState createState() => CoursesScreenState();
+  DepartmentScreenState createState() => DepartmentScreenState();
 }
 
-class CoursesScreenState extends State<CoursesScreen> {
+class DepartmentScreenState extends State<DepartmentScreen> {
   bool _isSearching = false;
   bool _isLoading = true;
   bool _hasError = false;
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = "All Courses";
   User? _currentUser;
   final UserPreferences _userPreferences = UserPreferences();
-  final DepartmentService _departmentService = DepartmentService();
   
   List<Department> _departments = [];
-  List<Course> _allCourses = [];
-  List<Course> _filteredCourses = [];
-  List<String> _categories = ["All Courses"];
+  List<Department> _filteredDepartments = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _loadCourses();
+    
+    // Add a slight delay to ensure the widget is fully initialized
+    Future.delayed(Duration.zero, () {
+      _loadDepartments();
+    });
   }
 
   _loadUserData() async {
@@ -149,70 +150,160 @@ class CoursesScreenState extends State<CoursesScreen> {
     });
   }
 
-  _loadCourses() async {
+  _loadDepartments() async {
     setState(() {
       _isLoading = true;
       _hasError = false;
     });
 
     try {
-      // Fetch departments and courses
-      final departments = await _departmentService.fetchDepartments();
-      
-      // Extract all courses from departments
-      List<Course> allCourses = [];
-      List<String> categories = ["All Courses"];
-      
-      for (var department in departments) {
-        allCourses.addAll(department.courses);
-        
-        // Add department name to categories
-        if (!categories.contains(department.name)) {
-          categories.add(department.name);
-        }
+      // Check if running on web platform
+      if (kIsWeb) {
+        // Web platform - direct API call
+        final departments = await _fetchDepartmentsDirectlyFromApi();
+        developer.log('Loaded ${departments.length} departments directly from API for web platform');
+        setState(() {
+          _departments = departments;
+          _filteredDepartments = departments;
+          _isLoading = false;
+        });
+      } else {
+        // Mobile/desktop platform - use service that handles local storage
+        final departmentService = DepartmentService();
+        final departments = await departmentService.fetchDepartments();
+        developer.log('Loaded ${departments.length} departments from service (probably local storage)');
+        setState(() {
+          _departments = departments;
+          _filteredDepartments = departments;
+          _isLoading = false;
+        });
       }
+    } catch (e) {
+      print('Error loading departments: $e. Using mock data.');
+      // Use mock data if API call fails
+      final departments = _getMockDepartments();
       
       setState(() {
         _departments = departments;
-        _allCourses = allCourses;
-        _filteredCourses = allCourses;
-        _categories = categories;
+        _filteredDepartments = departments;
         _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
       });
     }
   }
-
-  void _filterCourses(String category) {
-    setState(() {
-      _selectedCategory = category;
+  
+  // New method to fetch departments directly from API for web platforms
+  Future<List<Department>> _fetchDepartmentsDirectlyFromApi() async {
+    try {
+      final response = await http.get(Uri.parse(AppUrl.departments));
       
-      if (category == "All Courses") {
-        _filteredCourses = _allCourses;
+      if (response.statusCode == 200) {
+        final List<dynamic> departmentsJson = json.decode(response.body);
+        return departmentsJson.map((json) => Department.fromJson(json)).toList();
       } else {
-        _filteredCourses = _allCourses
-            .where((course) => course.departmentName == category)
-            .toList();
+        throw Exception('Failed to load departments: ${response.statusCode}');
       }
-    });
+    } catch (e) {
+      developer.log('Error in direct API call: $e');
+      throw e; // Re-throw to be caught by the caller
+    }
+  }
+  
+  // Mock data for testing or when API is unavailable
+  List<Department> _getMockDepartments() {
+    // Current timestamp for created_at and updated_at fields
+    final now = DateTime.now().toIso8601String();
+    
+    return [
+      Department(
+        id: 1,
+        name: 'Computer Science',
+        code: 'CS',
+        description: 'Department of Computer Science and Engineering',
+        logo: 'https://example.com/cs.png', // This will fail to load and show the fallback
+        courses: [
+          Course(
+            id: 101,
+            title: 'Introduction to Programming',
+            courseCode: 'CS101',
+            department: 1,
+            departmentName: 'Computer Science',
+            description: 'Fundamentals of programming using Python',
+            iconName: 'computer_outlined',
+            colorCode: '#4285F4',
+            documents: [],
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Department(
+        id: 2,
+        name: 'Electrical Engineering',
+        code: 'EE',
+        description: 'Department of Electrical Engineering',
+        logo: 'https://example.com/ee.png',
+        courses: [],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Department(
+        id: 3,
+        name: 'Business Administration',
+        code: 'BA',
+        description: 'Department of Business Administration',
+        logo: 'https://example.com/ba.png',
+        courses: [],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Department(
+        id: 4,
+        name: 'Mechanical Engineering',
+        code: 'ME',
+        description: 'Department of Mechanical Engineering',
+        logo: 'https://example.com/me.png',
+        courses: [],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Department(
+        id: 5,
+        name: 'Mathematics',
+        code: 'MATH',
+        description: 'Department of Mathematics',
+        logo: 'https://example.com/math.png',
+        courses: [],
+        createdAt: now,
+        updatedAt: now,
+      ),
+      Department(
+        id: 6,
+        name: 'Physics',
+        code: 'PHYS',
+        description: 'Department of Physics',
+        logo: 'https://example.com/phys.png',
+        courses: [],
+        createdAt: now,
+        updatedAt: now,
+      ),
+    ];
   }
 
-  void _searchCourses(String query) {
+  void _searchDepartments(String query) {
     if (query.isEmpty) {
-      _filterCourses(_selectedCategory);
+      setState(() {
+        _filteredDepartments = _departments;
+      });
       return;
     }
     
     setState(() {
-      _filteredCourses = _allCourses
-          .where((course) => 
-              course.title.toLowerCase().contains(query.toLowerCase()) ||
-              course.courseCode.toLowerCase().contains(query.toLowerCase()) ||
-              course.departmentName.toLowerCase().contains(query.toLowerCase()))
+      _filteredDepartments = _departments
+          .where((department) => 
+              department.name.toLowerCase().contains(query.toLowerCase()) ||
+              department.code.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
   }
@@ -249,6 +340,18 @@ class CoursesScreenState extends State<CoursesScreen> {
     );
   }
 
+  // Helper method to get a color based on department name (for demo purpose)
+  Color _getDepartmentColor(String name) {
+    // Simple hash function to generate color based on name
+    int hash = name.codeUnits.fold(0, (a, b) => a + b);
+    return Color.fromARGB(
+      255, 
+      (hash * 33) % 255, 
+      (hash * 73) % 255, 
+      (hash * 47) % 255,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -261,17 +364,17 @@ class CoursesScreenState extends State<CoursesScreen> {
                 controller: _searchController,
                 autofocus: true,
                 decoration: const InputDecoration(
-                  hintText: "Search courses...",
+                  hintText: "Search departments...",
                   hintStyle: TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  _searchCourses(value);
+                  _searchDepartments(value);
                 },
               )
             : const Text(
-                "University Courses",
+                "University Departments",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 22,
@@ -284,7 +387,7 @@ class CoursesScreenState extends State<CoursesScreen> {
               setState(() {
                 if (_isSearching) {
                   _searchController.clear();
-                  _filterCourses(_selectedCategory);
+                  _filteredDepartments = _departments;
                 }
                 _isSearching = !_isSearching;
               });
@@ -317,7 +420,7 @@ class CoursesScreenState extends State<CoursesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Hi, ${_currentUser?.firstName ?? "User"}!',
+                    'Welcome, ${_currentUser?.firstName ?? "User"}!',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 26,
@@ -326,67 +429,17 @@ class CoursesScreenState extends State<CoursesScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Explore your academic journey',
+                    kIsWeb ? 'Web Platform - API Direct Access' : 'Explore departments and courses',
                     style: TextStyle(
                       color: Colors.blue[100],
                       fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Categories horizontal list
-                  SizedBox(
-                    height: 40,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _categories.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: GestureDetector(
-                            onTap: () {
-                              _filterCourses(_categories[index]);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: _selectedCategory == _categories[index] 
-                                    ? Colors.white 
-                                    : Colors.blue[700],
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: _selectedCategory == _categories[index] 
-                                    ? [ 
-                                        BoxShadow(
-                                          color: Colors.blue.withOpacity(0.4),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        )
-                                      ] 
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                _categories[index],
-                                style: TextStyle(
-                                  color: _selectedCategory == _categories[index] 
-                                      ? Colors.blue[800] 
-                                      : Colors.white,
-                                  fontWeight: _selectedCategory == _categories[index] 
-                                      ? FontWeight.bold 
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
                     ),
                   ),
                 ],
               ),
             ),
             
-            // Courses grid
+            // Departments grid
             Expanded(
               child: _isLoading 
                 ? const Center(child: CircularProgressIndicator())
@@ -398,18 +451,18 @@ class CoursesScreenState extends State<CoursesScreen> {
                           Icon(Icons.error_outline, color: Colors.red[300], size: 60),
                           const SizedBox(height: 16),
                           const Text(
-                            "Failed to load courses",
+                            "Failed to load departments",
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 8),
                           ElevatedButton(
-                            onPressed: _loadCourses,
+                            onPressed: _loadDepartments,
                             child: const Text("Try Again"),
                           ),
                         ],
                       ),
                     )
-                  : _filteredCourses.isEmpty
+                  : _filteredDepartments.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -417,7 +470,7 @@ class CoursesScreenState extends State<CoursesScreen> {
                             Icon(Icons.search_off, color: Colors.grey[400], size: 60),
                             const SizedBox(height: 16),
                             Text(
-                              "No courses found",
+                              "No departments found",
                               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                             ),
                           ],
@@ -431,15 +484,15 @@ class CoursesScreenState extends State<CoursesScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  _selectedCategory,
-                                  style: const TextStyle(
+                                const Text(
+                                  "All Departments",
+                                  style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 Text(
-                                  "${_filteredCourses.length} Courses",
+                                  "${_filteredDepartments.length} Departments${kIsWeb ? " (Web)" : ""}",
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontWeight: FontWeight.w500,
@@ -449,18 +502,23 @@ class CoursesScreenState extends State<CoursesScreen> {
                             ),
                             const SizedBox(height: 10),
                             Expanded(
-                              child: GridView.builder(
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 15,
-                                  mainAxisSpacing: 15,
-                                  childAspectRatio: 0.85,
-                                ),
-                                itemCount: _filteredCourses.length,
-                                itemBuilder: (context, index) {
-                                  final course = _filteredCourses[index];
-                                  return _buildCourseCard(course);
+                              child: RefreshIndicator(
+                                onRefresh: () async {
+                                  await _loadDepartments();
                                 },
+                                child: GridView.builder(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                    childAspectRatio: 0.85,
+                                  ),
+                                  itemCount: _filteredDepartments.length,
+                                  itemBuilder: (context, index) {
+                                    final department = _filteredDepartments[index];
+                                    return _buildDepartmentCard(department);
+                                  },
+                                ),
                               ),
                             ),
                           ],
@@ -473,18 +531,19 @@ class CoursesScreenState extends State<CoursesScreen> {
     );
   }
 
-  Widget _buildCourseCard(Course course) {
-    // Convert color code to Flutter Color
-    Color color = _getColorFromHex(course.colorCode);
+  Widget _buildDepartmentCard(Department department) {
+    // Use the logo if available, otherwise use a color based on name
+    Color depColor = _getDepartmentColor(department.name);
     
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CourseDetailsScreen(course: course),
-          ),
-        );
+        // Show a temporary message that courses would be shown here
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (_) => DepartmentScreen(),
+          //   ),
+          // );
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -503,23 +562,55 @@ class CoursesScreenState extends State<CoursesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Department logo in circular avatar
             CircleAvatar(
-              radius: 30,
-              backgroundColor: color.withOpacity(0.2),
-              child: Icon(
-                _getIconData(course.iconName),
-                size: 30,
-                color: color,
+              radius: 40,
+              backgroundColor: depColor.withOpacity(0.2),
+              child: department.logo != null && department.logo!.isNotEmpty
+                ? Image.network(
+                    department.logo!,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Show first letter of department name if logo fails to load
+                      return Text(
+                        department.name[0].toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          color: depColor,
+                        ),
+                      );
+                    },
+                  )
+                : Text(
+                    department.name[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: depColor,
+                    ),
+                  ),
+            ),
+            const SizedBox(height: 12),
+            
+            // Divider
+            Container(
+              width: 60,
+              height: 4,
+              decoration: BoxDecoration(
+                color: depColor,
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
             const SizedBox(height: 12),
+            
+            // Department name
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                course.title,
+                department.name,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
                 maxLines: 2,
@@ -527,71 +618,19 @@ class CoursesScreenState extends State<CoursesScreen> {
               ),
             ),
             const SizedBox(height: 4),
+            
+            // Department code
             Text(
-              course.courseCode,
+              department.code,
               style: TextStyle(
                 color: Colors.grey[600],
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: 60,
-              height: 4,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(10),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
       ),
     );
-  }
-  
-  // Helper method to get IconData from string name
-  IconData _getIconData(String iconName) {
-    switch (iconName.toLowerCase()) {
-      case 'computer':
-      case 'computer_outlined':
-        return Icons.computer_outlined;
-      case 'business':
-      case 'business_center':
-        return Icons.business_center;
-      case 'people':
-      case 'people_alt_outlined':
-        return Icons.people_alt_outlined;
-      case 'sailing':
-      case 'sailing_outlined':
-        return Icons.sailing_outlined;
-      case 'train':
-      case 'train_outlined':
-        return Icons.train_outlined;
-      case 'engineering':
-      case 'precision_manufacturing_outlined':
-        return Icons.precision_manufacturing_outlined;
-      case 'car':
-      case 'directions_car_outlined':
-        return Icons.directions_car_outlined;
-      case 'code':
-      case 'code_outlined':
-        return Icons.code_outlined;
-      default:
-        return Icons.school;
-    }
-  }
-  
-  // Helper method to convert hex color string to Color
-  Color _getColorFromHex(String hexColor) {
-    try {
-      hexColor = hexColor.replaceAll('#', '');
-      if (hexColor.length == 6) {
-        hexColor = 'FF$hexColor';
-      }
-      return Color(int.parse(hexColor, radix: 16));
-    } catch (e) {
-      // Default to blue if parsing fails
-      return Colors.blue;
-    }
   }
 }

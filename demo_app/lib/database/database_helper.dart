@@ -1,9 +1,11 @@
 import 'package:demo_app/models/department.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:demo_app/database/database_config.dart'; 
 import 'package:path/path.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
+ static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
 
   factory DatabaseHelper() => _instance;
@@ -12,9 +14,36 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDatabase();
+    
+    if (kIsWeb) {
+      // sqflite is not supported on web; throw or handle accordingly
+      throw UnsupportedError('Database is not supported on web.');
+    } else {
+      // Initialize database factory for non-web platforms
+      initializeDatabaseFactory();
+      _database = await _initDatabase();
+    }
+    
     return _database!;
   }
+
+
+
+  // Department operations remain the same
+  // Course operations remain the same
+  // ... rest of your methods ...
+
+  // Sample method shown below, others will be similar:
+  // Future<int> insertDepartment(Department department) async {
+  //   Database db = await database;
+  //   return await db.insert(
+  //     'departments',
+  //     department.toMap(),
+  //     conflictAlgorithm: ConflictAlgorithm.replace,
+  //   );
+  // }
+
+  // Duplicate 'database' getter removed to avoid naming conflict.
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'university_courses.db');
