@@ -9,6 +9,6 @@ class Platform {
   static bool get isIOS => false;
   static bool get isAndroid => false;
   static bool get isWeb => true;
-  
+
   static String get operatingSystem => 'web';
 }

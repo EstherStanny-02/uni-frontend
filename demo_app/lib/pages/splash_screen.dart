@@ -28,5 +28,3 @@ class SplashScreenState extends State<SplashScreen> {
         nextScreen: const LoginScreen());
   }
 }
-
-

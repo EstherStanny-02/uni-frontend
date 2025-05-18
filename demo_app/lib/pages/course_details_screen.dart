@@ -3,14 +3,14 @@ import 'package:demo_app/models/department.dart';
 
 class CourseDetailsScreen extends StatelessWidget {
   final Course course;
-  
+
   const CourseDetailsScreen({super.key, required this.course});
 
   @override
   Widget build(BuildContext context) {
     // Convert color code from string to Color
     Color courseColor = _getColorFromHex(course.colorCode);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(course.title),
@@ -63,7 +63,8 @@ class CourseDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: courseColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -79,7 +80,7 @@ class CourseDetailsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Course details
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -96,13 +97,14 @@ class CourseDetailsScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    course.description ?? "No description available for this course.",
+                    course.description ??
+                        "No description available for this course.",
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[800],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
                   const Text(
                     "Course Materials",
@@ -112,9 +114,9 @@ class CourseDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Documents list
-                  course.documents.isNotEmpty 
+                  course.documents.isNotEmpty
                       ? ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -127,14 +129,18 @@ class CourseDetailsScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: ListTile(
-                                leading: Icon(Icons.description, color: courseColor),
-                                title: Text(document['title'] ?? 'Unknown Document'),
+                                leading:
+                                    Icon(Icons.description, color: courseColor),
+                                title: Text(
+                                    document['title'] ?? 'Unknown Document'),
                                 subtitle: Text(document['type'] ?? 'Document'),
                                 trailing: const Icon(Icons.download_rounded),
                                 onTap: () {
                                   // Handle document download/view
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Document download not implemented yet')),
+                                    const SnackBar(
+                                        content: Text(
+                                            'Document download not implemented yet')),
                                   );
                                 },
                               ),
@@ -146,7 +152,8 @@ class CourseDetailsScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(24.0),
                             child: Column(
                               children: [
-                                Icon(Icons.folder_open, size: 48, color: Colors.grey[400]),
+                                Icon(Icons.folder_open,
+                                    size: 48, color: Colors.grey[400]),
                                 const SizedBox(height: 16),
                                 Text(
                                   "No materials available yet",
@@ -164,7 +171,7 @@ class CourseDetailsScreen extends StatelessWidget {
       ),
     );
   }
-  
+
   // Helper method to get IconData from string name
   IconData _getIconData(String iconName) {
     switch (iconName.toLowerCase()) {
@@ -196,7 +203,7 @@ class CourseDetailsScreen extends StatelessWidget {
         return Icons.school;
     }
   }
-  
+
   // Helper method to convert hex color string to Color
   Color _getColorFromHex(String hexColor) {
     try {

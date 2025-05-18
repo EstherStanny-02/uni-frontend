@@ -1,11 +1,11 @@
 import 'package:demo_app/models/department.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:demo_app/database/database_config.dart'; 
+import 'package:demo_app/database/database_config.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
- static final DatabaseHelper _instance = DatabaseHelper._internal();
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
   static Database? _database;
 
   factory DatabaseHelper() => _instance;
@@ -14,7 +14,7 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    
+
     if (kIsWeb) {
       // sqflite is not supported on web; throw or handle accordingly
       throw UnsupportedError('Database is not supported on web.');
@@ -23,11 +23,9 @@ class DatabaseHelper {
       initializeDatabaseFactory();
       _database = await _initDatabase();
     }
-    
+
     return _database!;
   }
-
-
 
   // Department operations remain the same
   // Course operations remain the same
@@ -100,7 +98,7 @@ class DatabaseHelper {
   Future<List<Department>> getDepartments() async {
     Database db = await database;
     List<Map<String, dynamic>> maps = await db.query('departments');
-    
+
     return List.generate(maps.length, (i) {
       return Department.fromMap(maps[i]);
     });
@@ -113,7 +111,7 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
-    
+
     if (maps.isNotEmpty) {
       return Department.fromMap(maps.first);
     }
@@ -147,7 +145,7 @@ class DatabaseHelper {
   Future<List<Course>> getCourses() async {
     Database db = await database;
     List<Map<String, dynamic>> maps = await db.query('courses');
-    
+
     return List.generate(maps.length, (i) {
       return Course.fromMap(maps[i]);
     });
@@ -160,7 +158,7 @@ class DatabaseHelper {
       where: 'department = ?',
       whereArgs: [departmentId],
     );
-    
+
     return List.generate(maps.length, (i) {
       return Course.fromMap(maps[i]);
     });
@@ -173,7 +171,7 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [id],
     );
-    
+
     if (maps.isNotEmpty) {
       return Course.fromMap(maps.first);
     }
@@ -197,7 +195,7 @@ class DatabaseHelper {
   // Get departments with their courses
   Future<List<Department>> getDepartmentsWithCourses() async {
     List<Department> departments = await getDepartments();
-    
+
     for (var i = 0; i < departments.length; i++) {
       List<Course> courses = await getCoursesByDepartment(departments[i].id);
       departments[i] = Department(
@@ -211,7 +209,7 @@ class DatabaseHelper {
         updatedAt: departments[i].updatedAt,
       );
     }
-    
+
     return departments;
   }
 }

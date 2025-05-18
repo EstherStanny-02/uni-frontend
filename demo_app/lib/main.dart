@@ -19,7 +19,7 @@ void main() {
     // Web-specific initialization if needed
     print('Running on web platform - skipping native database initialization');
   }
-  
+
   runApp(
     DevicePreview(
       builder: (context) => MultiProvider(

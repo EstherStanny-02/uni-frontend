@@ -1,7 +1,12 @@
+import 'dart:async';
+
+import 'package:demo_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_app/session/user_preferences.dart';
 import 'package:demo_app/pages/login_screen.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 
 // Settings Screen
 class SettingsScreen extends StatefulWidget {
@@ -12,11 +17,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-
   String firstName = '';
   String lastName = '';
   String email = '';
   String phone = '';
+  bool _isLoading = false; // Add loading state
 
   @override
   void initState() {
@@ -41,6 +46,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _dataUsageReduction = false;
   String _selectedAppearanceMode = 'System default';
   final UserPreferences _userPreferences = UserPreferences();
+
+  final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
+
+  // Validation key for the form
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _confirmPasswordLogic() async {
+    developer.log('_confirmPasswordLogic method called');
+    
+    // Validate form first
+    if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
+      developer.log('Form validation failed');
+      return;
+    }
+
+    // Check if passwords match
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      developer.log('Passwords do not match');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    // Show loading state
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Get auth provider
+    final AuthProvider provider =
+        Provider.of<AuthProvider>(context, listen: false);
+    
+    try {
+      developer.log('Attempting to change password');
+      developer.log('Current password: ${_currentPasswordController.text}');
+      developer.log('New password: ${_newPasswordController.text}');
+      
+      final response = await provider.changePassword(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+        confirmPassword: _confirmPasswordController.text,
+      );
+      
+      developer.log('Response received: ${response.statusCode}');
+      
+      // Hide loading state
+      setState(() {
+        _isLoading = false;
+      });
+      
+      if (response.statusCode == 200) {
+        // Close dialog
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Password changed successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error changing password: ${response.body}')),
+        );
+      }
+    } catch (e) {
+      // Hide loading state
+      setState(() {
+        _isLoading = false;
+      });
+      
+      developer.log('Error in _confirmPasswordLogic: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +161,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 Text(
                   "$firstName $lastName",
                   style: const TextStyle(
@@ -251,7 +333,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Logout button
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 8.0),
             child: ElevatedButton(
               onPressed: () {
                 _showLogoutDialog(context);
@@ -312,68 +395,95 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showChangePasswordDialog(BuildContext context) {
-    final TextEditingController currentPasswordController = TextEditingController();
-    final TextEditingController newPasswordController = TextEditingController();
-    final TextEditingController confirmPasswordController = TextEditingController();
-
+    // Reset controllers
+    _currentPasswordController.clear();
+    _newPasswordController.clear();
+    _confirmPasswordController.clear();
+    
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Change Password"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: currentPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "Current Password",
-                border: OutlineInputBorder(),
+      barrierDismissible: false, // User must tap a button to close dialog
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: const Text("Change Password"),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _currentPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Current Password",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your current password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _newPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "New Password",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a new password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      labelText: "Confirm New Password",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your new password';
+                      }
+                      if (value != _newPasswordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ),
+                  if (_isLoading) 
+                    const Padding(
+                      padding: EdgeInsets.only(top: 16.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                ],
               ),
             ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: newPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "New Password",
-                border: OutlineInputBorder(),
+            actions: [
+              TextButton(
+                onPressed: _isLoading ? null : () => Navigator.pop(context),
+                child: const Text("Cancel"),
               ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: confirmPasswordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: "Confirm New Password",
-                border: OutlineInputBorder(),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _confirmPasswordLogic,
+                child: _isLoading 
+                  ? const Text("Updating...") 
+                  : const Text("Update"),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Validate and update password
-              if (newPasswordController.text == confirmPasswordController.text) {
-                // Update password logic would go here
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Password updated successfully')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Passwords do not match')),
-                );
-              }
-            },
-            child: const Text("Update"),
-          ),
-        ],
+            ],
+          );
+        }
       ),
     );
   }
@@ -402,6 +512,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ElevatedButton(
             onPressed: () {
               // Update email logic
+              setState(() {
+                email = emailController.text;
+              });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Email updated successfully')),
@@ -438,9 +551,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ElevatedButton(
             onPressed: () {
               // Update phone logic
+              setState(() {
+                phone = phoneController.text;
+              });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Phone number updated successfully')),
+                const SnackBar(
+                    content: Text('Phone number updated successfully')),
               );
             },
             child: const Text("Update"),
@@ -452,7 +569,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showNotificationPreferencesDialog(BuildContext context) {
     bool coursesNotifications = true;
-    
 
     showDialog(
       context: context,
@@ -474,7 +590,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
-
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -485,7 +600,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   // Save notification preferences
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Notification preferences updated')),
+                    const SnackBar(
+                        content: Text('Notification preferences updated')),
                   );
                 },
                 child: const Text("Save"),
@@ -518,7 +634,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-
           const Divider(),
           _buildFontSizeOption(context, "Small"),
           _buildFontSizeOption(context, "Medium"),
@@ -620,7 +735,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           _buildLanguageOption(context, "English"),
-
           const SizedBox(height: 16),
         ],
       ),
@@ -728,17 +842,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const ListTile(
+            ListTile(
               leading: Icon(Icons.email),
               title: Text("Email Support"),
               subtitle: Text("uni@schooling.edu"),
             ),
-            const ListTile(
+            ListTile(
               leading: Icon(Icons.phone),
               title: Text("Phone Support"),
               subtitle: Text("+255-688-016-108"),
             ),
-            const ListTile(
+            ListTile(
               leading: Icon(Icons.help_outline),
               title: Text("FAQ"),
               subtitle: Text("View Frequently Asked Questions"),
@@ -793,7 +907,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () {
               _userPreferences.removeUser(); // Clear user data
               Navigator.pop(context); // Close the dialog
-              
+
               // Navigate to login screen and remove all previous routes
               Navigator.pushAndRemoveUntil(
                 context,

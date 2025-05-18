@@ -13,13 +13,13 @@ class ProfileScreen extends StatefulWidget {
 class ProfileScreenState extends State<ProfileScreen> {
   // Form key for validation
   final _formKey = GlobalKey<FormState>();
-  
+
   // Controllers for text fields
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  
+
   // Variables to store user information
   File? _profileImage;
   bool _isLoading = false;
@@ -37,9 +37,9 @@ class ProfileScreenState extends State<ProfileScreen> {
     setState(() {
       _isLoading = true;
     });
-    
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     // Get user information from SharedPreferences
     String? firstName = prefs.getString("firstName");
     String? lastName = prefs.getString("lastName");
@@ -47,7 +47,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     String? token = prefs.getString("accessToken");
     String? refreshToken = prefs.getString("renewalToken");
     String? phone = prefs.getString("phone") ?? '';
-    
+
     _user = User(
       firstName: firstName,
       lastName: lastName,
@@ -55,13 +55,13 @@ class ProfileScreenState extends State<ProfileScreen> {
       accessToken: token,
       refreshToken: refreshToken,
     );
-    
+
     // Update controllers with user data
     _firstNameController.text = firstName ?? '';
     _lastNameController.text = lastName ?? '';
     _emailController.text = email ?? '';
     _phoneController.text = phone;
-    
+
     setState(() {
       _isLoading = false;
     });
@@ -82,7 +82,7 @@ class ProfileScreenState extends State<ProfileScreen> {
         source: source,
         imageQuality: 80,
       );
-      
+
       if (pickedFile != null) {
         setState(() {
           _profileImage = File(pickedFile.path);
@@ -98,7 +98,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   // Show options to pick image
   void _showImageSourceOptions() {
     if (!_isEditing) return;
-    
+
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -112,7 +112,6 @@ class ProfileScreenState extends State<ProfileScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -180,16 +179,16 @@ class ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         _isLoading = true;
       });
-      
+
       try {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        
+
         // Update user information in SharedPreferences
         await prefs.setString("firstName", _firstNameController.text);
         await prefs.setString("lastName", _lastNameController.text);
         await prefs.setString("email", _emailController.text);
         await prefs.setString("phone", _phoneController.text);
-        
+
         // Update user object
         _user = User(
           firstName: _firstNameController.text,
@@ -198,10 +197,10 @@ class ProfileScreenState extends State<ProfileScreen> {
           accessToken: _user?.accessToken,
           refreshToken: _user?.refreshToken,
         );
-        
+
         // Exit edit mode
         _toggleEditMode();
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Profile updated successfully')),
@@ -252,7 +251,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            
+
             // Profile image and name
             Padding(
               padding: const EdgeInsets.only(top: 80),
@@ -286,7 +285,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                   : null,
                               child: _profileImage == null
                                   ? Text(
-                                      _user?.firstName != null && _user?.firstName!.isNotEmpty == true
+                                      _user?.firstName != null &&
+                                              _user?.firstName!.isNotEmpty ==
+                                                  true
                                           ? _user!.firstName![0].toUpperCase()
                                           : "?",
                                       style: const TextStyle(
@@ -307,7 +308,8 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.blue,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
                                 ),
                                 child: const Icon(
                                   Icons.camera_alt,
@@ -413,12 +415,13 @@ class ProfileScreenState extends State<ProfileScreen> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              validator: validator ?? (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter $label';
-                }
-                return null;
-              },
+              validator: validator ??
+                  (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter $label';
+                    }
+                    return null;
+                  },
             )
           : ListTile(
               leading: CircleAvatar(
@@ -470,9 +473,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // Profile header with image and name
                     _buildProfileHeader(),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Personal Information Section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -519,7 +522,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter your email';
-                                  } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                                  } else if (!RegExp(
+                                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                      .hasMatch(value)) {
                                     return 'Please enter a valid email address';
                                   }
                                   return null;
@@ -536,12 +541,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Action Button (Edit/Save)
                     _buildActionButton(),
-                    
+
                     const SizedBox(height: 30),
                   ],
                 ),

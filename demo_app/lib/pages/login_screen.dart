@@ -93,8 +93,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white, // Box color
                     borderRadius: BorderRadius.circular(20),
                   ),
-
-
                   child: Column(
                     children: [
                       // Username Field
@@ -107,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
-                          
+
                           labelText: 'Username',
                           prefixIcon: const Icon(Icons.person,
                               color: Colors.blue), // Person icon

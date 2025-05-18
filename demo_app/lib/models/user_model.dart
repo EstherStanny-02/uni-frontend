@@ -6,12 +6,15 @@ class User {
   String? accessToken;
   String? refreshToken;
 
+  var phone;
+
   User({
     this.firstName,
     this.lastName,
     this.email,
     this.accessToken,
     this.refreshToken,
+    String? phone,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {

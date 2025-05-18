@@ -2,7 +2,6 @@ import 'package:demo_app/session/user_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_app/models/user_model.dart';
 
-
 // Message model to represent messages from admin
 class Message {
   final String content;
@@ -31,15 +30,15 @@ class _MessageScreenState extends State<MessageScreen> {
   User? _currentUser;
   final UserPreferences _userPreferences = UserPreferences();
   bool _isLoading = true;
-  
+
   // Example admin messages
   final List<Message> _adminMessages = [
     Message(
       title: "Welcome Back to School",
-      content: "Dear student, Welcome to the Uni Schooling Platform. This application is designed to help you manage your academic life. We hope you find it useful.",
+      content:
+          "Dear student, Welcome to the Uni Schooling Platform. This application is designed to help you manage your academic life. We hope you find it useful.",
       timestamp: DateTime.now().subtract(const Duration(days: 2)),
     ),
-
   ];
 
   @override
@@ -47,7 +46,7 @@ class _MessageScreenState extends State<MessageScreen> {
     super.initState();
     _loadUserData();
   }
-  
+
   _loadUserData() async {
     User user = await _userPreferences.getUser();
     setState(() {
@@ -73,7 +72,6 @@ class _MessageScreenState extends State<MessageScreen> {
         ),
         backgroundColor: Colors.blue[800],
       ),
-      
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -127,7 +125,8 @@ class _MessageScreenState extends State<MessageScreen> {
                         )
                       : ListView.separated(
                           itemCount: _adminMessages.length,
-                          separatorBuilder: (context, index) => const Divider(height: 1),
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final message = _adminMessages[index];
                             return InkWell(
@@ -144,7 +143,8 @@ class _MessageScreenState extends State<MessageScreen> {
                                     ),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           "Date: ${_formatDate(message.timestamp)}",
@@ -171,7 +171,9 @@ class _MessageScreenState extends State<MessageScreen> {
                                   horizontal: 16,
                                   vertical: 12,
                                 ),
-                                color: message.isRead ? Colors.white : Colors.blue[50],
+                                color: message.isRead
+                                    ? Colors.white
+                                    : Colors.blue[50],
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -186,10 +188,12 @@ class _MessageScreenState extends State<MessageScreen> {
                                     const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               Expanded(
                                                 child: Text(
@@ -199,7 +203,8 @@ class _MessageScreenState extends State<MessageScreen> {
                                                     fontSize: 16,
                                                   ),
                                                   maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               Text(
@@ -231,7 +236,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           },
                         ),
                 ),
-                
+
                 // Information text at the bottom indicating read-only
                 Container(
                   width: double.infinity,

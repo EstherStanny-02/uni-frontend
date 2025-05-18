@@ -5,12 +5,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 import 'package:demo_app/services/app_url.dart';
 
-enum DataStatus {
-  Loading,
-  Loaded,
-  Error,
-  Empty
-}
+enum DataStatus { Loading, Loaded, Error, Empty }
 
 class DepartmentProvider with ChangeNotifier {
   DataStatus _dataStatus = DataStatus.Empty;
@@ -34,7 +29,7 @@ class DepartmentProvider with ChangeNotifier {
 
     try {
       final departments = await _databaseHelper.getDepartmentsWithCourses();
-      
+
       if (departments.isEmpty) {
         // If database is empty, fetch from API
         await fetchDepartments();
@@ -61,22 +56,22 @@ class DepartmentProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final List<dynamic> departmentsJson = json.decode(response.body);
-        
+
         // Clear existing data
         await _databaseHelper.clearDepartments();
         await _databaseHelper.clearCourses();
-        
+
         // Parse departments and save to database
         for (var departmentJson in departmentsJson) {
           Department department = Department.fromJson(departmentJson);
           await _databaseHelper.insertDepartment(department);
-          
+
           // Save courses
           for (var course in department.courses) {
             await _databaseHelper.insertCourse(course);
           }
         }
-        
+
         // Reload from database to ensure consistency
         _departments = await _databaseHelper.getDepartmentsWithCourses();
         _dataStatus = DataStatus.Loaded;
@@ -88,7 +83,7 @@ class DepartmentProvider with ChangeNotifier {
       _errorMessage = 'Connection error: $e';
       _dataStatus = DataStatus.Error;
     }
-    
+
     notifyListeners();
   }
 
@@ -100,7 +95,8 @@ class DepartmentProvider with ChangeNotifier {
   // Get courses by department ID
   List<Course> getCoursesByDepartment(int departmentId) {
     try {
-      Department? department = _departments.firstWhere((d) => d.id == departmentId);
+      Department? department =
+          _departments.firstWhere((d) => d.id == departmentId);
       return department.courses;
     } catch (e) {
       return [];
@@ -130,11 +126,11 @@ class DepartmentProvider with ChangeNotifier {
   // Search courses by title or code
   List<Course> searchCourses(String query) {
     if (query.isEmpty) return getAllCourses();
-    
+
     query = query.toLowerCase();
     return getAllCourses().where((course) {
-      return course.title.toLowerCase().contains(query) || 
-             course.courseCode.toLowerCase().contains(query);
+      return course.title.toLowerCase().contains(query) ||
+          course.courseCode.toLowerCase().contains(query);
     }).toList();
   }
 }

@@ -5,7 +5,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 Future<Database> getDatabaseForPlatform() async {
   // Use databaseFactoryFfiWeb for the web
   var factory = databaseFactoryFfiWeb;
-  
+
   // Open a database with the factory
   final db = await factory.openDatabase(
     'university_courses_web.db',
@@ -45,6 +45,6 @@ Future<Database> getDatabaseForPlatform() async {
       },
     ),
   );
-  
+
   return db;
 }
