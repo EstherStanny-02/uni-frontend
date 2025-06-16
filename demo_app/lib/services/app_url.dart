@@ -1,7 +1,8 @@
 class AppUrl {
-  static const String baseUrl = 'http://192.168.1.175:8000/api';
+  static const String localhost = 'http://192.168.1.150:8000/api';
 
   // Authentication endpoints
+  static const baseUrl = localhost;
   static const String login = '$baseUrl/auth/login/';
   static const String register = '$baseUrl/auth/register/';
 
@@ -12,4 +13,7 @@ class AppUrl {
   static const String courses = '$baseUrl/academics/courses/';
 
   static const String changePassword = '$baseUrl/auth/change-password/';
+
+  // Message endpoints
+  static const String messages = '$baseUrl/auth/messages/';
 }

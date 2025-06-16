@@ -555,12 +555,13 @@ class DepartmentScreenState extends State<DepartmentScreen> {
       onTap: () {
         // Show a temporary message that courses would be shown here
         Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => DepartmentScreenContent(
-                departmentName: department.name,
-              ),
-            ));
+        context,
+        MaterialPageRoute(
+          builder: (_) => DepartmentScreenContent(
+            courses: department.courses,
+            departmentName: department.name,
+          ),
+        ));
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
