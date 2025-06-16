@@ -45,6 +45,7 @@ class DepartmentProvider with ChangeNotifier {
     }
   }
 
+
   // Fetch departments from API
   Future<void> fetchDepartments() async {
     _dataStatus = DataStatus.Loading;
