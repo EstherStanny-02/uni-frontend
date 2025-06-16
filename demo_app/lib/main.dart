@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:demo_app/providers/user_provider.dart';
+import 'package:device_preview/device_preview.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,12 +21,22 @@ void main() {
   }
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-      ],
-      child: const MyApp(),
+    // MultiProvider(
+    //   providers: [
+    //     ChangeNotifierProvider(create: (_) => AuthProvider()),
+    //     ChangeNotifierProvider(create: (_) => UserProvider()),
+    //   ],
+    //   child: const MyApp(),
+    // ),
+    DevicePreview(
+      // enabled: !kIsWeb,
+      builder: (context) => MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+        ],
+        child: const MyApp(),
+      ),
     ),
   );
 }
