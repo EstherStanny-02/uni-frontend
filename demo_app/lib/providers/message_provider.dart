@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
 
-
 class MessageProvider with ChangeNotifier {
   final MessageService _messageService;
 
