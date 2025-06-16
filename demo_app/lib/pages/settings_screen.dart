@@ -174,32 +174,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Account Settings
-          _buildSectionHeader("Account Settings"),
-          _buildSettingsTile(
-            icon: Icons.lock,
-            title: "Change Password",
-            subtitle: "Update your security credentials",
-            onTap: () {
-              _showChangePasswordDialog(context);
-            },
-          ),
-          _buildSettingsTile(
-            icon: Icons.email,
-            title: "Email Address",
-            subtitle: email,
-            onTap: () {
-              _showChangeEmailDialog(context);
-            },
-          ),
-          _buildSettingsTile(
-            icon: Icons.phone_android,
-            title: "Phone Number",
-            subtitle: phone,
-            onTap: () {
-              _showChangePhoneDialog(context);
-            },
-          ),
-          const SizedBox(height: 10),
 
           // Notifications
           _buildSectionHeader("Notifications"),
@@ -260,14 +234,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _showFontSizeSelection(context);
             },
           ),
-          _buildSettingsTile(
-            icon: Icons.palette,
-            title: "Theme Mode",
-            subtitle: _selectedAppearanceMode,
-            onTap: () {
-              _showAppearanceModeSelection(context);
-            },
-          ),
+          
+          
           const SizedBox(height: 10),
 
           // Privacy & Data
