@@ -1,30 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:demo_app/models/message_model.dart';
 import 'package:demo_app/models/user_model.dart';
 import 'package:demo_app/session/user_preferences.dart';
+import 'package:demo_app/services/message_service.dart';
 import 'package:intl/intl.dart';
-
-// Enhanced Message model with additional fields for better display
-class Message {
-  final String id;
-  final String title;
-  final String content;
-  final DateTime timestamp;
-  final bool isRead;
-  final String senderName;
-  final String senderRole;
-  final String? imageUrl;
-
-  Message({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.timestamp,
-    this.isRead = false,
-    required this.senderName,
-    required this.senderRole,
-    this.imageUrl,
-  });
-}
 
 class MessageScreen extends StatefulWidget {
   const MessageScreen({super.key});
@@ -39,56 +18,78 @@ class _MessageScreenState extends State<MessageScreen> {
   bool _isLoading = true;
   int _unreadCount = 0;
   
-  // Example messages with more details
-  late List<Message> _messages;
+  // Initialize our message service
+  final MessageService _messageService = MessageService();
+   
+  // Messages will be loaded from API
+  List<Message> _messages = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    _initializeMessages();
+    _fetchMessages();
   }
 
-  void _initializeMessages() {
-    _messages = [
-      Message(
-        id: "1",
-        title: "Welcome Back to School",
-        content: "Dear student, Welcome to the Uni Schooling Platform. This application is designed to help you manage your academic life. We hope you find it useful and engaging throughout your academic journey.\n\nThe platform offers various features including course registration, grade tracking, schedule management, and direct communication with faculty and administration.\n\nIf you have any questions or feedback, please don't hesitate to reach out to our support team.",
-        timestamp: DateTime.now().subtract(const Duration(days: 2)),
-        senderName: "Admin Office",
-        senderRole: "Administration",
-        isRead: false,
-      ),
-      Message(
-        id: "2",
-        title: "Upcoming Maintenance",
-        content: "Please be informed that our systems will undergo scheduled maintenance this weekend from Saturday 8 PM to Sunday 2 AM. During this time, the application and some university services may be temporarily unavailable.\n\nWe apologize for any inconvenience this may cause and appreciate your understanding.",
-        timestamp: DateTime.now().subtract(const Duration(days: 1)),
-        senderName: "IT Department",
-        senderRole: "Technical Support",
-        isRead: false,
-      ),
-      Message(
-        id: "3",
-        title: "Library Hours Extended",
-        content: "Good news! The university library has extended its operating hours during the exam period. Starting next week, the library will be open from 7 AM to midnight on weekdays, and 9 AM to 10 PM on weekends.\n\nAdditional study spaces have also been arranged in the Student Center to accommodate more students during this busy period.",
-        timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-        senderName: "Library Services",
-        senderRole: "Academic Support",
-        isRead: true,
-      ),
-    ];
+  Future<void> _fetchMessages() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    // Count unread messages
-    _unreadCount = _messages.where((message) => !message.isRead).length;
+    try {
+      // Use the MessageService to call our API
+      final messagesJson = await _messageService.getMessages();
+      
+      // Parse the response
+      final List<Message> loadedMessages = _parseMessages(messagesJson);
+      
+      setState(() {
+        _messages = loadedMessages;
+        _unreadCount = _messages.where((message) => !message.isRead).length;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _messages = [];
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading messages: $e')),
+      );
+    }
+  }
+
+  // This method parses the JSON data into Message objects
+  List<Message> _parseMessages(List<dynamic> messagesJson) {
+    return messagesJson.map((messageData) {
+      // Map sender ID to name and role
+      final Map<int, Map<String, String>> senderInfo = {
+        1: {'name': 'Academic Office', 'role': 'Academic Support'},
+        2: {'name': 'IT Department', 'role': 'Technical Support'},
+        9: {'name': 'Admin Office', 'role': 'Administration'},
+        // Add more mappings as needed
+      };
+      
+      final int senderId = messageData['sender'] ?? 0;
+      final senderName = senderInfo[senderId]?['name'] ?? 'Unknown Sender';
+      final senderRole = senderInfo[senderId]?['role'] ?? 'Unknown';
+      
+      // Create additional fields needed for our Message model
+      Map<String, dynamic> enrichedData = {
+        ...messageData,
+        'sender_name': senderName,
+        'sender_role': senderRole,
+        'sender_id': senderId,
+      };
+      
+      return Message.fromJson(enrichedData);
+    }).toList();
   }
 
   _loadUserData() async {
     User user = await _userPreferences.getUser();
     setState(() {
       _currentUser = user;
-      _isLoading = false;
     });
   }
 
@@ -107,27 +108,80 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  void _markAsRead(String messageId) {
-    setState(() {
-      final index = _messages.indexWhere((msg) => msg.id == messageId);
-      if (index != -1 && !_messages[index].isRead) {
-        // Create a new message object with isRead set to true
-        final updatedMessage = Message(
-          id: _messages[index].id,
-          title: _messages[index].title,
-          content: _messages[index].content,
-          timestamp: _messages[index].timestamp,
-          isRead: true,
-          senderName: _messages[index].senderName,
-          senderRole: _messages[index].senderRole,
-          imageUrl: _messages[index].imageUrl,
-        );
-        
-        // Replace the old message with the updated one
-        _messages[index] = updatedMessage;
-        _unreadCount = _messages.where((message) => !message.isRead).length;
+  Future<void> _markAsRead(String messageId) async {
+    try {
+      // Call the API to mark the message as read
+      bool success = await _messageService.markAsRead(messageId);
+      
+      if (success) {
+        setState(() {
+          final index = _messages.indexWhere((msg) => msg.id == messageId);
+          if (index != -1 && !_messages[index].isRead) {
+            // Create a new message object with isRead set to true
+            final updatedMessage = Message(
+              id: _messages[index].id,
+              content: _messages[index].content,
+              timestamp: _messages[index].timestamp,
+              isRead: true,
+              senderName: _messages[index].senderName,
+              senderRole: _messages[index].senderRole,
+              senderId: _messages[index].senderId,
+              imageUrl: _messages[index].imageUrl,
+            );
+            
+            // Replace the old message with the updated one
+            _messages[index] = updatedMessage;
+            _unreadCount = _messages.where((message) => !message.isRead).length;
+          }
+        });
       }
-    });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error marking message as read: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteMessage(String messageId) async {
+    try {
+      bool success = await _messageService.deleteMessage(messageId);
+      
+      if (success) {
+        setState(() {
+          _messages.removeWhere((msg) => msg.id == messageId);
+          _unreadCount = _messages.where((message) => !message.isRead).length;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Message deleted")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to delete message: $e")),
+      );
+    }
+  }
+
+  Future<void> _archiveMessage(String messageId) async {
+    try {
+      bool success = await _messageService.archiveMessage(messageId);
+      
+      if (success) {
+        setState(() {
+          _messages.removeWhere((msg) => msg.id == messageId);
+          _unreadCount = _messages.where((message) => !message.isRead).length;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Message archived")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to archive message: $e")),
+      );
+    }
   }
 
   @override
@@ -152,6 +206,11 @@ class _MessageScreenState extends State<MessageScreen> {
                 const SnackBar(content: Text("Search not implemented yet")),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _fetchMessages,
+            tooltip: "Refresh messages",
           ),
         ],
       ),
@@ -248,7 +307,7 @@ class _MessageScreenState extends State<MessageScreen> {
                               _buildFilterChip("All", true),
                               _buildFilterChip("Unread", false),
                               _buildFilterChip("Administration", false),
-                              _buildFilterChip("Academic", false),
+                              _buildFilterChip("Technical Support", false),
                             ],
                           ),
                         ),
@@ -269,13 +328,16 @@ class _MessageScreenState extends State<MessageScreen> {
                 Expanded(
                   child: _messages.isEmpty
                       ? _buildEmptyState()
-                      : ListView.separated(
-                          itemCount: _messages.length,
-                          separatorBuilder: (context, index) =>
-                              const Divider(height: 1, indent: 76),
-                          itemBuilder: (context, index) {
-                            return _buildMessageTile(_messages[index]);
-                          },
+                      : RefreshIndicator(
+                          onRefresh: _fetchMessages,
+                          child: ListView.separated(
+                            itemCount: _messages.length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(height: 1, indent: 76),
+                            itemBuilder: (context, index) {
+                              return _buildMessageTile(_messages[index]);
+                            },
+                          ),
                         ),
                 ),
                 
@@ -433,7 +495,7 @@ class _MessageScreenState extends State<MessageScreen> {
                   ),
                   const SizedBox(height: 4),
                   
-                  // Message title
+                  // Message title (extracted from content)
                   Text(
                     message.title,
                     style: TextStyle(
@@ -599,9 +661,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Archive",
                         onPressed: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Archive functionality coming soon")),
-                          );
+                          _archiveMessage(message.id);
                         },
                       ),
                       _buildActionButton(
@@ -609,9 +669,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Delete functionality coming soon")),
-                          );
+                          _deleteMessage(message.id);
                         },
                       ),
                     ],
