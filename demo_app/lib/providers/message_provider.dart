@@ -43,6 +43,7 @@ class MessageProvider with ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
+    
     } catch (e) {
       _error = e.toString();
       _isLoading = false;

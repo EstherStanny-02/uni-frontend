@@ -1,10 +1,7 @@
 import 'package:demo_app/pages/splash_screen.dart';
 import 'package:demo_app/providers/auth_provider.dart';
-import 'package:demo_app/providers/message_provider.dart';
-import 'package:demo_app/services/message_service.dart';
 import 'package:demo_app/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:demo_app/providers/user_provider.dart';
 import 'package:device_preview/device_preview.dart';

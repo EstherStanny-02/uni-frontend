@@ -425,7 +425,7 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget _buildMessageTile(Message message) {
     return InkWell(
       onTap: () {
-        _markAsRead(message.id);
+        _markAsRead(message.id as String);
         _showMessageDetails(message);
       },
       child: Container(
@@ -661,7 +661,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Archive",
                         onPressed: () {
                           Navigator.pop(context);
-                          _archiveMessage(message.id);
+                          _archiveMessage(message.id as String);
                         },
                       ),
                       _buildActionButton(
@@ -669,7 +669,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteMessage(message.id);
+                          _deleteMessage(message.id as String);
                         },
                       ),
                     ],

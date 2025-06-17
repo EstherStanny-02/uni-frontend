@@ -1,5 +1,5 @@
 class Message {
-  final String id;
+  final int id;
   final String content;
   final DateTime timestamp;
   final bool isRead;
@@ -34,7 +34,7 @@ class Message {
     if (words.length <= 5) {
       return content;
     } else {
-      return words.take(5).join(' ') + '...';
+      return '${words.take(5).join(' ')}...';
     }
   }
 
@@ -56,7 +56,7 @@ class Message {
 
 
    Message copyWith({
-    String? id,
+    int? id,
     String? content,
     DateTime? timestamp,
     bool? isRead,
@@ -68,10 +68,10 @@ class Message {
       content: content ?? this.content,
       timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
-      senderName: this.senderName,
+      senderName: senderName,
       senderRole: senderRole ?? this.senderRole,
-      senderId: this.senderId,
-      imageUrl: this.imageUrl,
+      senderId: senderId,
+      imageUrl: imageUrl,
     );
   }
 }

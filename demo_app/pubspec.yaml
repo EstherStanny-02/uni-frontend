@@ -55,7 +55,14 @@ dependencies:
   sqflite_common_ffi_web: ^0.4.5+4
   # flutter_secure_storage: ^9.2.4
   flutter_secure_storage: ^8.0.0
-
+  flutter_local_notifications: ^17.0.0  # For push notifications
+  permission_handler: ^11.1.0           # For handling permissions
+  path_provider: ^2.1.1                 # For cache management
+  url_launcher: ^6.2.1                  # For opening external links (optional)
+  share_plus: ^11.0.0
+  dio: ^5.3.2
+ 
+ 
 
 
 dev_dependencies:
