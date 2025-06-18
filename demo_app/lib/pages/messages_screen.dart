@@ -142,7 +142,7 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  Future<void> _deleteMessage(String messageId) async {
+  Future<void> _deleteMessage(String messageId, Type string) async {
     try {
       bool success = await _messageService.deleteMessage(messageId);
       
@@ -669,7 +669,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteMessage(message.id as String);
+                          _deleteMessage(message.id as String, String);
                         },
                       ),
                     ],
