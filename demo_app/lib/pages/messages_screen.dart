@@ -675,7 +675,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteMessage(message.id); // Remove the type casting
+                          _deleteMessage(message.id as String);
                         },
                       ),
                     ],
