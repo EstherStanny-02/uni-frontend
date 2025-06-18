@@ -8,8 +8,6 @@ class MessageService {
   // Base URL for API calls
   final String baseUrl = AppUrl.messages;
 
-  // Optional API key or auth token if needed
-
   MessageService();
 
   // Headers to include in requests
@@ -25,45 +23,45 @@ class MessageService {
 
   // Get all messages
   Future<List<dynamic>> getMessages() async {
-  try {
-    final response = await http.get(
-      Uri.parse(baseUrl),
-      headers: await _getHeaders(),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(baseUrl),
+        headers: await _getHeaders(),
+      );
 
-    if (response.statusCode == 200) {
-      // Decode the JSON response
-      final responseData = jsonDecode(response.body);
-      
-      // Ensure response is a Map
-      if (responseData is Map<String, dynamic>) {
-        // Check if error is false
-        if (responseData['error'] == false) {
-          // Extract the data field
-          final messages = responseData['data'];
-          
-          // Verify data is a List
-          if (messages is List<dynamic>) {
-            return messages;
+      if (response.statusCode == 200) {
+        // Decode the JSON response
+        final responseData = jsonDecode(response.body);
+        
+        // Ensure response is a Map
+        if (responseData is Map<String, dynamic>) {
+          // Check if error is false
+          if (responseData['error'] == false) {
+            // Extract the data field
+            final messages = responseData['data'];
+            
+            // Verify data is a List
+            if (messages is List<dynamic>) {
+              return messages;
+            } else {
+              throw Exception('Invalid API response: "data" must be a list, got ${messages.runtimeType}');
+            }
           } else {
-                      throw Exception('Invalid API response: "data" must be a list, got ${messages.runtimeType}');
+            throw Exception('API error: ${responseData['message'] ?? 'Unknown error'}');
           }
         } else {
-          throw Exception('API error: ${responseData['message'] ?? 'Unknown error'}');
+          throw Exception('Invalid API response: Expected a JSON object, got ${responseData.runtimeType}');
         }
       } else {
-        throw Exception('Invalid API response: Expected a JSON object, got ${responseData.runtimeType}');
+        throw Exception('Failed to load messages: HTTP ${response.statusCode}');
       }
-    } else {
-      throw Exception('Failed to load messages: HTTP ${response.statusCode}');
+    } catch (e) {
+      throw Exception('Error fetching messages: $e');
     }
-  } catch (e) {
-    throw Exception('Error fetching messages: $e');
   }
-}
 
-  // Get a specific message by ID
-  Future<Map<String, dynamic>> getMessage(String id) async {
+  // Get a specific message by ID - now accepts int
+  Future<Map<String, dynamic>> getMessage(int id) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/messages/$id'),
@@ -81,8 +79,8 @@ class MessageService {
     }
   }
 
-  // Mark a message as read
-  Future<bool> markAsRead(String id) async {
+  // Mark a message as read - now accepts int
+  Future<bool> markAsRead(int id) async {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/messages/$id/read'),
@@ -95,8 +93,8 @@ class MessageService {
     }
   }
 
-  // Delete a message
-  Future<bool> deleteMessage(String id) async {
+  // Delete a message - now accepts int
+  Future<bool> deleteMessage(int id) async {
     try {
       final response = await http.delete(
         Uri.parse('$baseUrl/messages/$id'),
@@ -109,8 +107,8 @@ class MessageService {
     }
   }
 
-  // Archive a message
-  Future<bool> archiveMessage(String id) async {
+  // Archive a message - now accepts int
+  Future<bool> archiveMessage(int id) async {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/messages/$id/archive'),

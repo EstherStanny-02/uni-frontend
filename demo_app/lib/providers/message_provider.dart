@@ -26,7 +26,7 @@ class MessageProvider with ChangeNotifier {
   int get unreadCount => _messages.where((message) => !message.isRead).length;
 
   // Fetch messages from the API
-  Future<void> fetchMessages() async {
+   Future<void> fetchMessages() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -35,10 +35,25 @@ class MessageProvider with ChangeNotifier {
       final jsonData = await _messageService.getMessages();
 
       _messages = jsonData.map<Message>((messageData) {
-        return Message.fromJson(messageData);
+        // Enrich the data with sender information
+        final int senderId = messageData['sender'] ?? 0;
+        final senderName = messageData['sender_name']?.isNotEmpty == true 
+            ? messageData['sender_name'] 
+            : _senderInfo[senderId]?['name'] ?? 'Unknown Sender';
+        final senderRole = _senderInfo[senderId]?['role'] ?? 'Unknown';
+        
+        // Create additional fields needed for our Message model
+        Map<String, dynamic> enrichedData = {
+          ...messageData,
+          'sender_name': senderName,
+          'sender_role': senderRole,
+          'sender_id': senderId,
+          'content': messageData['body'], // Map 'body' to 'content'
+        };
+        
+        return Message.fromJson(enrichedData);
       }).toList();
 
-      // Sort by timestamp, newest first
       _messages.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
       _isLoading = false;

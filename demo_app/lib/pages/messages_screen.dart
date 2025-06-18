@@ -62,16 +62,19 @@ class _MessageScreenState extends State<MessageScreen> {
   // This method parses the JSON data into Message objects
   List<Message> _parseMessages(List<dynamic> messagesJson) {
     return messagesJson.map((messageData) {
-      // Map sender ID to name and role
+      // Map sender ID to name and role based on your API response
       final Map<int, Map<String, String>> senderInfo = {
         1: {'name': 'Academic Office', 'role': 'Academic Support'},
         2: {'name': 'IT Department', 'role': 'Technical Support'},
+        8: {'name': 'James Michael', 'role': 'Student Support'},
         9: {'name': 'Admin Office', 'role': 'Administration'},
         // Add more mappings as needed
       };
       
       final int senderId = messageData['sender'] ?? 0;
-      final senderName = senderInfo[senderId]?['name'] ?? 'Unknown Sender';
+      final senderName = messageData['sender_name']?.isNotEmpty == true 
+          ? messageData['sender_name'] 
+          : senderInfo[senderId]?['name'] ?? 'Unknown Sender';
       final senderRole = senderInfo[senderId]?['role'] ?? 'Unknown';
       
       // Create additional fields needed for our Message model
@@ -80,6 +83,7 @@ class _MessageScreenState extends State<MessageScreen> {
         'sender_name': senderName,
         'sender_role': senderRole,
         'sender_id': senderId,
+        'content': messageData['body'], // Map 'body' to 'content'
       };
       
       return Message.fromJson(enrichedData);
@@ -108,7 +112,7 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  Future<void> _markAsRead(String messageId) async {
+  Future<void> _markAsRead(int messageId) async {
     try {
       // Call the API to mark the message as read
       bool success = await _messageService.markAsRead(messageId);
@@ -142,7 +146,7 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  Future<void> _deleteMessage(String messageId) async {
+  Future<void> _deleteMessage(int messageId) async {
     try {
       bool success = await _messageService.deleteMessage(messageId);
       
@@ -163,7 +167,7 @@ class _MessageScreenState extends State<MessageScreen> {
     }
   }
 
-  Future<void> _archiveMessage(String messageId) async {
+  Future<void> _archiveMessage(int messageId) async {
     try {
       bool success = await _messageService.archiveMessage(messageId);
       
@@ -425,7 +429,7 @@ class _MessageScreenState extends State<MessageScreen> {
   Widget _buildMessageTile(Message message) {
     return InkWell(
       onTap: () {
-        _markAsRead(message.id as String);
+        _markAsRead(message.id); // Remove the type casting
         _showMessageDetails(message);
       },
       child: Container(
@@ -534,6 +538,8 @@ class _MessageScreenState extends State<MessageScreen> {
         return Icons.school;
       case 'technical support':
         return Icons.computer;
+      case 'student support':
+        return Icons.support_agent;
       default:
         return Icons.person;
     }
@@ -661,7 +667,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Archive",
                         onPressed: () {
                           Navigator.pop(context);
-                          _archiveMessage(message.id as String);
+                          _archiveMessage(message.id); // Remove the type casting
                         },
                       ),
                       _buildActionButton(
@@ -669,7 +675,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteMessage(message.id as String);
+                          _deleteMessage(message.id); // Remove the type casting
                         },
                       ),
                     ],
