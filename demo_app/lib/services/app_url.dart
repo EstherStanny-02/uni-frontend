@@ -16,4 +16,8 @@ class AppUrl {
 
   // Message endpoints
   static const String messages = '$baseUrl/auth/messages/';
+
+  //notes endpoints
+  static const String notes = '$baseUrl/academics/notes/';
+  static const String documents = '$baseUrl/academics/documents/';
 }
