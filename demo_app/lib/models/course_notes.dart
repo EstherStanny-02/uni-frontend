@@ -41,7 +41,7 @@ class CourseNote {
 
   // Getter for uploadedBy that returns a user object with display name
   User get uploadedBy => User(id: createdBy, name: createdByName);
-  
+
   // Getter for uploadedAt that returns createdAt
   DateTime get uploadedAt => createdAt;
 

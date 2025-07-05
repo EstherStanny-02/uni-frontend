@@ -75,7 +75,8 @@ class CourseDetailsService {
     }
   }
 
-  Future<List<CourseDocument>> getDocumentsByCourse({required int courseId}) async {
+  Future<List<CourseDocument>> getDocumentsByCourse(
+      {required int courseId}) async {
     try {
       final response = await http.get(
         Uri.parse('${AppUrl.documents}?course=$courseId'),
@@ -97,15 +98,14 @@ class CourseDetailsService {
   }
 
   Future<List<CourseNote>> getNotesByCourse({required int courseId}) async {
-   
-   try {
-    final prefs = await SharedPreferences.getInstance();
+    try {
+      final prefs = await SharedPreferences.getInstance();
       final String accessToken = prefs.getString('accessToken') ?? '';
       final response = await http.get(
         Uri.parse('${AppUrl.notes}?course=$courseId'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization' : 'Bearer $accessToken',
+          'Authorization': 'Bearer $accessToken',
         },
       );
 

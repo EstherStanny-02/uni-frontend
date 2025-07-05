@@ -13,7 +13,8 @@ class SplashScreen extends StatefulWidget {
   SplashScreenState createState() => SplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   final UserPreferences _userPreferences = UserPreferences();
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -21,13 +22,13 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
+
     _animation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -35,10 +36,10 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     // Start animation
     _animationController.forward();
-    
+
     // Check user and navigate after 3 seconds
     _checkUserAndNavigate();
   }
@@ -46,11 +47,11 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
   Future<void> _checkUserAndNavigate() async {
     // Wait for 3 seconds (splash duration)
     await Future.delayed(const Duration(seconds: 3));
-    
+
     try {
       // Check if user exists in preferences
       final user = await _userPreferences.getUser();
-      
+
       if (mounted) {
         if (user.accessToken != null && user.accessToken!.isNotEmpty) {
           Navigator.pushReplacement(

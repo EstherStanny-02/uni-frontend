@@ -19,7 +19,8 @@ class TutorialsTab extends StatefulWidget {
   State<TutorialsTab> createState() => _TutorialsTabState();
 }
 
-class _TutorialsTabState extends State<TutorialsTab> with TickerProviderStateMixin {
+class _TutorialsTabState extends State<TutorialsTab>
+    with TickerProviderStateMixin {
   bool _isLoadingNotes = false;
   List<CourseNote> _courseNotes = [];
   late AnimationController _animationController;
@@ -47,7 +48,8 @@ class _TutorialsTabState extends State<TutorialsTab> with TickerProviderStateMix
 
     try {
       final service = CourseDetailsService();
-      final response = await service.getNotesByCourse(courseId: int.parse(widget.courseId));
+      final response =
+          await service.getNotesByCourse(courseId: int.parse(widget.courseId));
       setState(() {
         _courseNotes = response;
       });
@@ -59,7 +61,8 @@ class _TutorialsTabState extends State<TutorialsTab> with TickerProviderStateMix
           content: Text('Failed to load course notes: $e'),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
       );
     } finally {
@@ -331,12 +334,15 @@ class _TutorialsTabState extends State<TutorialsTab> with TickerProviderStateMix
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: _getCategoryColor(note.category).withOpacity(0.1),
+                          color:
+                              _getCategoryColor(note.category).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: _getCategoryColor(note.category).withOpacity(0.3),
+                            color: _getCategoryColor(note.category)
+                                .withOpacity(0.3),
                           ),
                         ),
                         child: Text(
@@ -405,9 +411,11 @@ class _TutorialsTabState extends State<TutorialsTab> with TickerProviderStateMix
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _getDifficultyColor(note.difficultyLevel).withOpacity(0.1),
+                          color: _getDifficultyColor(note.difficultyLevel)
+                              .withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -514,7 +522,8 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
       final maxScroll = _scrollController.position.maxScrollExtent;
       final currentScroll = _scrollController.position.pixels;
       setState(() {
-        _scrollProgress = maxScroll > 0 ? (currentScroll / maxScroll).clamp(0.0, 1.0) : 0.0;
+        _scrollProgress =
+            maxScroll > 0 ? (currentScroll / maxScroll).clamp(0.0, 1.0) : 0.0;
       });
     }
   }
@@ -609,7 +618,8 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(16),
@@ -628,7 +638,8 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                               ),
                               const SizedBox(width: 12),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(16),
@@ -684,7 +695,8 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                   // Progress indicator
                   Container(
                     height: 4,
-                    margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(2),
@@ -734,7 +746,8 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
       ),
       child: Row(
         children: [
-          _buildInfoItem(Icons.schedule, "${widget.note.estimatedReadTime} min read"),
+          _buildInfoItem(
+              Icons.schedule, "${widget.note.estimatedReadTime} min read"),
           const SizedBox(width: 24),
           _buildInfoItem(Icons.text_fields, "${widget.note.wordCount} words"),
         ],
@@ -857,8 +870,10 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildFooterRow("Created by", widget.note.uploadedBy.getDisplayName()),
-          _buildFooterRow("Created on", widget.note.uploadedAt.toString().split(' ')[0]),
+          _buildFooterRow(
+              "Created by", widget.note.uploadedBy.getDisplayName()),
+          _buildFooterRow(
+              "Created on", widget.note.uploadedAt.toString().split(' ')[0]),
           _buildFooterRow("Course", widget.note.courseTitle),
           _buildFooterRow("Order", "#${widget.note.order}"),
         ],

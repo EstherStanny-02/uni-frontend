@@ -51,7 +51,8 @@ class _DocumentsTabState extends State<DocumentsTab> {
 
     try {
       final service = CourseDetailsService();
-      final response = await service.getDocumentsByCourse(courseId: int.parse(widget.courseId));
+      final response = await service.getDocumentsByCourse(
+          courseId: int.parse(widget.courseId));
       setState(() {
         _courseDocuments = response;
       });
@@ -157,7 +158,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
     }
     return _courseDocuments
         .where((doc) =>
-    doc.documentType.toLowerCase() == _selectedFilter.toLowerCase())
+            doc.documentType.toLowerCase() == _selectedFilter.toLowerCase())
         .toList();
   }
 
@@ -244,7 +245,7 @@ class _DocumentsTabState extends State<DocumentsTab> {
       builder: (context) => AlertDialog(
         title: const Text('Download All Documents'),
         content:
-        const Text('This will download all course materials. Continue?'),
+            const Text('This will download all course materials. Continue?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -452,12 +453,13 @@ class _DocumentsTabState extends State<DocumentsTab> {
             IconButton(
               icon: _isDownloading
                   ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
                   : const Icon(Icons.download),
-              onPressed: _isDownloading ? null : () => _downloadDocument(document),
+              onPressed:
+                  _isDownloading ? null : () => _downloadDocument(document),
               tooltip: 'Download',
             ),
           ],

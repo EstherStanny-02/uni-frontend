@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:demo_app/models/department.dart';
 import 'package:share_plus/share_plus.dart';
 
-
 class CourseDetailsScreen extends StatefulWidget {
   final Course course;
 
@@ -59,7 +58,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content:
-        Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites'),
+            Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -69,9 +68,9 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
     // ignore: deprecated_member_use
     Share.share(
       'Check out this course: ${widget.course.title}\n'
-          'Course Code: ${widget.course.courseCode}\n'
-          'Department: ${widget.course.departmentName}\n'
-          '${widget.course.description ?? ""}',
+      'Course Code: ${widget.course.courseCode}\n'
+      'Department: ${widget.course.departmentName}\n'
+      '${widget.course.description ?? ""}',
       subject: 'Course: ${widget.course.title}',
     );
   }
@@ -197,14 +196,20 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
         builder: (BuildContext context, BoxConstraints constraints) {
           final double currentHeight = constraints.biggest.height;
           final double maxExtent = isTablet ? 300.0 : 200.0;
-          final double minExtent = kToolbarHeight + (isTablet ? 56.0 : 48.0); // Account for TabBar height
-          final double opacity = (currentHeight - minExtent) / (maxExtent - minExtent);
+          final double minExtent = kToolbarHeight +
+              (isTablet ? 56.0 : 48.0); // Account for TabBar height
+          final double opacity =
+              (currentHeight - minExtent) / (maxExtent - minExtent);
 
           return FlexibleSpaceBar(
             centerTitle: true, // Center the title
-            titlePadding: EdgeInsets.only(bottom: _tabController.indexIsChanging ? 0 : 56.0), // Adjust padding to prevent overlap
+            titlePadding: EdgeInsets.only(
+                bottom: _tabController.indexIsChanging
+                    ? 0
+                    : 56.0), // Adjust padding to prevent overlap
             title: Opacity(
-              opacity: opacity.clamp(0.0, 1.0), // Fade in title as app bar expands
+              opacity:
+                  opacity.clamp(0.0, 1.0), // Fade in title as app bar expands
               child: Text(
                 widget.course.title,
                 style: const TextStyle(
@@ -226,7 +231,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
               ),
               child: Center(
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: isTablet ? 60.0 : 40.0), // Adjust padding for Hero icon
+                  padding: EdgeInsets.only(
+                      bottom: isTablet
+                          ? 60.0
+                          : 40.0), // Adjust padding for Hero icon
                   child: Hero(
                     tag: 'course-${widget.course.courseCode}',
                     child: CircleAvatar(
