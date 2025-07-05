@@ -22,13 +22,13 @@ class Message {
   // Extract a title from the message content (first line or first few words)
   String get title {
     if (content.isEmpty) return "No Subject";
-    
+
     // Try to get the first line (if there are line breaks)
     final firstLine = content.split('\n').first.trim();
     if (firstLine.length > 3) {
       return firstLine;
     }
-    
+
     // Otherwise get the first few words
     final words = content.split(' ');
     if (words.length <= 5) {
@@ -43,8 +43,8 @@ class Message {
     return Message(
       id: json['id'] ?? json['sent_at'] ?? DateTime.now().toIso8601String(),
       content: json['body'] ?? json['content'] ?? '',
-      timestamp: json['sent_at'] != null 
-          ? DateTime.parse(json['sent_at']) 
+      timestamp: json['sent_at'] != null
+          ? DateTime.parse(json['sent_at'])
           : DateTime.now(),
       isRead: json['is_read'] ?? false,
       senderName: json['sender_name'] ?? 'Unknown Sender',
@@ -54,8 +54,7 @@ class Message {
     );
   }
 
-
-   Message copyWith({
+  Message copyWith({
     int? id,
     String? content,
     DateTime? timestamp,

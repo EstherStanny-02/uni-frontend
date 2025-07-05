@@ -1,6 +1,6 @@
+import 'package:demo_app/models/course_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:demo_app/models/department.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,7 +23,14 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
   bool _isLoading = false;
   bool _isFavorite = false;
   String _selectedFilter = 'All';
-  final List<String> _filterOptions = ['All', 'PDF', 'DOC', 'PPT', 'Video', 'Other'];
+  final List<String> _filterOptions = [
+    'All',
+    'PDF',
+    'DOC',
+    'PPT',
+    'Video',
+    'Other'
+  ];
 
   @override
   void initState() {
@@ -60,7 +67,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
     // Save to SharedPreferences or database
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites'),
+        content:
+            Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -103,7 +111,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
           onReceiveProgress: (received, total) {
             if (total != -1) {
               // Update progress if needed
-              print('Download progress: ${(received / total * 100).toStringAsFixed(0)}%');
+              print(
+                  'Download progress: ${(received / total * 100).toStringAsFixed(0)}%');
             }
           },
         );
@@ -165,7 +174,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
       return widget.course.documents;
     }
     return widget.course.documents
-        .where((doc) => doc['type']?.toLowerCase() == _selectedFilter.toLowerCase())
+        .where((doc) =>
+            doc['type']?.toLowerCase() == _selectedFilter.toLowerCase())
         .toList();
   }
 
@@ -291,9 +301,11 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
           onSelected: (value) {
             switch (value) {
               case 'copy_code':
-                Clipboard.setData(ClipboardData(text: widget.course.courseCode));
+                Clipboard.setData(
+                    ClipboardData(text: widget.course.courseCode));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Course code copied to clipboard')),
+                  const SnackBar(
+                      content: Text('Course code copied to clipboard')),
                 );
                 break;
               case 'report':
@@ -364,7 +376,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
                     // ),
                     const SizedBox(height: 4),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: courseColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -429,7 +442,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color, bool isTablet) {
+  Widget _buildStatCard(
+      String label, String value, IconData icon, Color color, bool isTablet) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -496,7 +510,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            widget.course.description ?? "No description available for this course.",
+            widget.course.description ??
+                "No description available for this course.",
             style: TextStyle(
               fontSize: isTablet ? 16 : 14,
               color: Colors.grey[700],
@@ -548,7 +563,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Filter chips
           if (widget.course.documents.isNotEmpty) ...[
             SizedBox(
@@ -597,7 +612,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
     );
   }
 
-  Widget _buildDocumentCard(Map<String, dynamic> document, Color courseColor, bool isTablet) {
+  Widget _buildDocumentCard(
+      Map<String, dynamic> document, Color courseColor, bool isTablet) {
     final documentType = document['type'] ?? 'Document';
     final documentColor = _getDocumentColor(documentType);
 
@@ -760,7 +776,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Download All Documents'),
-        content: const Text('This will download all course materials. Continue?'),
+        content:
+            const Text('This will download all course materials. Continue?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -891,4 +908,4 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
       return Colors.blue;
     }
   }
-    }
+}

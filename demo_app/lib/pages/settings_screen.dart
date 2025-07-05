@@ -58,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _confirmPasswordLogic() async {
     developer.log('_confirmPasswordLogic method called');
-    
+
     // Validate form first
     if (_formKey.currentState == null || !_formKey.currentState!.validate()) {
       developer.log('Form validation failed');
@@ -82,25 +82,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Get auth provider
     final AuthProvider provider =
         Provider.of<AuthProvider>(context, listen: false);
-    
+
     try {
       developer.log('Attempting to change password');
       developer.log('Current password: ${_currentPasswordController.text}');
       developer.log('New password: ${_newPasswordController.text}');
-      
+
       final response = await provider.changePassword(
         currentPassword: _currentPasswordController.text,
         newPassword: _newPasswordController.text,
         confirmPassword: _confirmPasswordController.text,
       );
-      
+
       developer.log('Response received: ${response.statusCode}');
-      
+
       // Hide loading state
       setState(() {
         _isLoading = false;
       });
-      
+
       if (response.statusCode == 200) {
         // Close dialog
         Navigator.pop(context);
@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _isLoading = false;
       });
-      
+
       developer.log('Error in _confirmPasswordLogic: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
@@ -234,8 +234,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _showFontSizeSelection(context);
             },
           ),
-          
-          
+
           const SizedBox(height: 10),
 
           // Privacy & Data
@@ -367,92 +366,89 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _currentPasswordController.clear();
     _newPasswordController.clear();
     _confirmPasswordController.clear();
-    
+
     showDialog(
       context: context,
       barrierDismissible: false, // User must tap a button to close dialog
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            title: const Text("Change Password"),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _currentPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: "Current Password",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your current password';
-                      }
-                      return null;
-                    },
+      builder: (context) => StatefulBuilder(builder: (context, setDialogState) {
+        return AlertDialog(
+          title: const Text("Change Password"),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: _currentPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Current Password",
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _newPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: "New Password",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a new password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your current password';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "New Password",
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(height: 10),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: "Confirm New Password",
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your new password';
-                      }
-                      if (value != _newPasswordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a new password';
+                    }
+                    if (value.length < 6) {
+                      return 'Password must be at least 6 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Confirm New Password",
+                    border: OutlineInputBorder(),
                   ),
-                  if (_isLoading) 
-                    const Padding(
-                      padding: EdgeInsets.only(top: 16.0),
-                      child: Center(child: CircularProgressIndicator()),
-                    ),
-                ],
-              ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your new password';
+                    }
+                    if (value != _newPasswordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                if (_isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: _isLoading ? null : () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _confirmPasswordLogic,
-                child: _isLoading 
-                  ? const Text("Updating...") 
-                  : const Text("Update"),
-              ),
-            ],
-          );
-        }
-      ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: _isLoading ? null : () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _confirmPasswordLogic,
+              child:
+                  _isLoading ? const Text("Updating...") : const Text("Update"),
+            ),
+          ],
+        );
+      }),
     );
   }
 

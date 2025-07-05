@@ -9,31 +9,7 @@ import 'package:demo_app/pages/settings_screen.dart';
 import 'package:demo_app/pages/messages_screen.dart';
 import 'package:demo_app/models/user_model.dart';
 import 'package:demo_app/models/department.dart';
-import 'package:http/http.dart' as http;
-import 'package:demo_app/services/app_url.dart';
-import 'dart:convert';
-import 'dart:developer' as developer;
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Poppins',
-        scaffoldBackgroundColor: Colors.grey[50],
-      ),
-      home: const HomeScreen(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -124,24 +100,16 @@ class DepartmentScreen extends StatefulWidget {
 
 class DepartmentScreenState extends State<DepartmentScreen> {
   bool _isSearching = false;
-  bool _isLoading = true;
-  bool _hasError = false;
   final TextEditingController _searchController = TextEditingController();
   User? _currentUser;
   final UserPreferences _userPreferences = UserPreferences();
 
-  List<Department> _departments = [];
   List<Department> _filteredDepartments = [];
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
-
-    // Add a slight delay to ensure the widget is fully initialized
-    Future.delayed(Duration.zero, () {
-      _loadDepartments();
-    });
   }
 
   _loadUserData() async {
@@ -151,162 +119,16 @@ class DepartmentScreenState extends State<DepartmentScreen> {
     });
   }
 
-  _loadDepartments() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-    });
-
-    try {
-      // Check if running on web platform
-      if (kIsWeb) {
-        // Web platform - direct API call
-        final departments = await _fetchDepartmentsDirectlyFromApi();
-        developer.log(
-            'Loaded ${departments.length} departments directly from API for web platform');
-        setState(() {
-          _departments = departments;
-          _filteredDepartments = departments;
-          _isLoading = false;
-        });
-      } else {
-        // Mobile/desktop platform - use service that handles local storage
-        final departmentService = DepartmentService();
-        final departments = await departmentService.fetchDepartments();
-        developer.log(
-            'Loaded ${departments.length} departments from service (probably local storage)');
-        setState(() {
-          _departments = departments;
-          _filteredDepartments = departments;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error loading departments: $e. Using mock data.');
-      // Use mock data if API call fails
-      final departments = _getMockDepartments();
-
-      setState(() {
-        _departments = departments;
-        _filteredDepartments = departments;
-        _isLoading = false;
-      });
-    }
-  }
-
-  // New method to fetch departments directly from API for web platforms
-  Future<List<Department>> _fetchDepartmentsDirectlyFromApi() async {
-    try {
-      final response = await http.get(Uri.parse(AppUrl.departments));
-
-      if (response.statusCode == 200) {
-        final List<dynamic> departmentsJson = json.decode(response.body);
-        return departmentsJson
-            .map((json) => Department.fromJson(json))
-            .toList();
-      } else {
-        throw Exception('Failed to load departments: ${response.statusCode}');
-      }
-    } catch (e) {
-      developer.log('Error in direct API call: $e');
-      rethrow; // Re-throw to be caught by the caller
-    }
-  }
-
-  // Mock data for testing or when API is unavailable
-  List<Department> _getMockDepartments() {
-    // Current timestamp for created_at and updated_at fields
-    final now = DateTime.now().toIso8601String();
-
-    return [
-      Department(
-        id: 1,
-        name: 'Computer Science',
-        code: 'CS',
-        description: 'Department of Computer Science and Engineering',
-        logo:
-            'https://example.com/cs.png', // This will fail to load and show the fallback
-        courses: [
-          Course(
-            id: 101,
-            title: 'Introduction to Programming',
-            courseCode: 'CS101',
-            department: 1,
-            departmentName: 'Computer Science',
-            description: 'Fundamentals of programming using Python',
-            iconName: 'computer_outlined',
-            colorCode: '#4285F4',
-            documents: [],
-            createdAt: now,
-            updatedAt: now,
-          ),
-        ],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 2,
-        name: 'Electrical Engineering',
-        code: 'EE',
-        description: 'Department of Electrical Engineering',
-        logo: 'https://example.com/ee.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 3,
-        name: 'Business Administration',
-        code: 'BA',
-        description: 'Department of Business Administration',
-        logo: 'https://example.com/ba.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 4,
-        name: 'Mechanical Engineering',
-        code: 'ME',
-        description: 'Department of Mechanical Engineering',
-        logo: 'https://example.com/me.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 5,
-        name: 'Mathematics',
-        code: 'MATH',
-        description: 'Department of Mathematics',
-        logo: 'https://example.com/math.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 6,
-        name: 'Physics',
-        code: 'PHYS',
-        description: 'Department of Physics',
-        logo: 'https://example.com/phys.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-    ];
-  }
-
-  void _searchDepartments(String query) {
+  void _searchDepartments(String query, List<Department> departments) {
     if (query.isEmpty) {
       setState(() {
-        _filteredDepartments = _departments;
+        _filteredDepartments = departments;
       });
       return;
     }
 
     setState(() {
-      _filteredDepartments = _departments
+      _filteredDepartments = departments
           .where((department) =>
               department.name.toLowerCase().contains(query.toLowerCase()) ||
               department.code.toLowerCase().contains(query.toLowerCase()))
@@ -323,20 +145,18 @@ class DepartmentScreenState extends State<DepartmentScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close the dialog
+              Navigator.pop(context);
             },
             child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
-              _userPreferences.removeUser(); // Clear user data
-              Navigator.pop(context); // Close the dialog
-
-              // Navigate to login screen and remove all previous routes
+              _userPreferences.removeUser();
+              Navigator.pop(context);
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false, // This will remove all previous routes
+                (route) => false,
               );
             },
             child: const Text("Logout", style: TextStyle(color: Colors.red)),
@@ -346,9 +166,7 @@ class DepartmentScreenState extends State<DepartmentScreen> {
     );
   }
 
-  // Helper method to get a color based on department name (for demo purpose)
   Color _getDepartmentColor(String name) {
-    // Simple hash function to generate color based on name
     int hash = name.codeUnits.fold(0, (a, b) => a + b);
     return Color.fromARGB(
       255,
@@ -376,7 +194,9 @@ class DepartmentScreenState extends State<DepartmentScreen> {
                 ),
                 style: const TextStyle(color: Colors.white),
                 onChanged: (value) {
-                  _searchDepartments(value);
+                  final departmentProvider =
+                      Provider.of<DepartmentProvider>(context, listen: false);
+                  _searchDepartments(value, departmentProvider.departments);
                 },
               )
             : const Text(
@@ -393,7 +213,9 @@ class DepartmentScreenState extends State<DepartmentScreen> {
               setState(() {
                 if (_isSearching) {
                   _searchController.clear();
-                  _filteredDepartments = _departments;
+                  final departmentProvider =
+                      Provider.of<DepartmentProvider>(context, listen: false);
+                  _filteredDepartments = departmentProvider.departments;
                 }
                 _isSearching = !_isSearching;
               });
@@ -449,97 +271,153 @@ class DepartmentScreenState extends State<DepartmentScreen> {
 
             // Departments grid
             Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _hasError
-                      ? Center(
+              child: Consumer<DepartmentProvider>(
+                builder: (context, departmentProvider, child) {
+                  // Initialize filtered departments when data is loaded
+                  if (_filteredDepartments.isEmpty &&
+                      departmentProvider.departments.isNotEmpty) {
+                    _filteredDepartments = departmentProvider.departments;
+                  }
+
+                  switch (departmentProvider.dataStatus) {
+                    case DataStatus.Loading:
+                      return const Center(child: CircularProgressIndicator());
+
+                    case DataStatus.Error:
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.error_outline,
+                                color: Colors.red[300], size: 60),
+                            const SizedBox(height: 16),
+                            const Text(
+                              "Failed to load departments",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              departmentProvider.errorMessage,
+                              style: TextStyle(color: Colors.grey[600]),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                departmentProvider.refreshDepartments();
+                              },
+                              child: const Text("Try Again"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                    case DataStatus.Empty:
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.school_outlined,
+                                color: Colors.grey[400], size: 60),
+                            const SizedBox(height: 16),
+                            Text(
+                              "No departments found",
+                              style: TextStyle(
+                                  fontSize: 18, color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                departmentProvider.refreshDepartments();
+                              },
+                              child: const Text("Refresh"),
+                            ),
+                          ],
+                        ),
+                      );
+
+                    case DataStatus.Loaded:
+                      final displayDepartments = _filteredDepartments.isEmpty
+                          ? departmentProvider.departments
+                          : _filteredDepartments;
+
+                      if (displayDepartments.isEmpty &&
+                          _searchController.text.isNotEmpty) {
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.error_outline,
-                                  color: Colors.red[300], size: 60),
+                              Icon(Icons.search_off,
+                                  color: Colors.grey[400], size: 60),
                               const SizedBox(height: 16),
-                              const Text(
-                                "Failed to load departments",
+                              Text(
+                                "No departments found for '${_searchController.text}'",
                                 style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: _loadDepartments,
-                                child: const Text("Try Again"),
+                                    fontSize: 18, color: Colors.grey[600]),
                               ),
                             ],
                           ),
-                        )
-                      : _filteredDepartments.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.search_off,
-                                      color: Colors.grey[400], size: 60),
-                                  const SizedBox(height: 16),
-                                  Text(
-                                    "No departments found",
-                                    style: TextStyle(
-                                        fontSize: 18, color: Colors.grey[600]),
+                        );
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "All Departments",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        "All Departments",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        "${_filteredDepartments.length} Departments${kIsWeb ? " (Web)" : ""}",
-                                        style: TextStyle(
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                                Text(
+                                  "${displayDepartments.length} Departments${kIsWeb ? " (Web)" : ""}",
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  const SizedBox(height: 10),
-                                  Expanded(
-                                    child: RefreshIndicator(
-                                      onRefresh: () async {
-                                        await _loadDepartments();
-                                      },
-                                      child: GridView.builder(
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          crossAxisSpacing: 15,
-                                          mainAxisSpacing: 15,
-                                          childAspectRatio: 0.85,
-                                        ),
-                                        itemCount: _filteredDepartments.length,
-                                        itemBuilder: (context, index) {
-                                          final department =
-                                              _filteredDepartments[index];
-                                          return _buildDepartmentCard(
-                                              department);
-                                        },
-                                      ),
-                                    ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Expanded(
+                              child: RefreshIndicator(
+                                onRefresh: () async {
+                                  await departmentProvider.refreshDepartments();
+                                  setState(() {
+                                    _filteredDepartments =
+                                        departmentProvider.departments;
+                                  });
+                                },
+                                child: GridView.builder(
+                                  gridDelegate:
+                                      const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 15,
+                                    mainAxisSpacing: 15,
+                                    childAspectRatio: 0.85,
                                   ),
-                                ],
+                                  itemCount: displayDepartments.length,
+                                  itemBuilder: (context, index) {
+                                    final department =
+                                        displayDepartments[index];
+                                    return _buildDepartmentCard(department);
+                                  },
+                                ),
                               ),
                             ),
+                          ],
+                        ),
+                      );
+                  }
+                },
+              ),
             ),
           ],
         ),
@@ -548,20 +426,19 @@ class DepartmentScreenState extends State<DepartmentScreen> {
   }
 
   Widget _buildDepartmentCard(Department department) {
-    // Use the logo if available, otherwise use a color based on name
     Color depColor = _getDepartmentColor(department.name);
 
     return InkWell(
       onTap: () {
-        // Show a temporary message that courses would be shown here
         Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => DepartmentScreenContent(
-            courses: department.courses,
-            departmentName: department.name,
+          context,
+          MaterialPageRoute(
+            builder: (_) => DepartmentScreenContent(
+              courses: department.courses,
+              departmentName: department.name,
+            ),
           ),
-        ));
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(
@@ -588,7 +465,6 @@ class DepartmentScreenState extends State<DepartmentScreen> {
                   ? Image.network(
                       department.logo!,
                       errorBuilder: (context, error, stackTrace) {
-                        // Show first letter of department name if logo fails to load
                         return Text(
                           department.name[0].toUpperCase(),
                           style: TextStyle(

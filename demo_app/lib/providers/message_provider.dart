@@ -3,7 +3,6 @@ import 'package:demo_app/services/message_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
-
 class MessageProvider with ChangeNotifier {
   final MessageService _messageService;
 
@@ -26,7 +25,7 @@ class MessageProvider with ChangeNotifier {
   int get unreadCount => _messages.where((message) => !message.isRead).length;
 
   // Fetch messages from the API
-   Future<void> fetchMessages() async {
+  Future<void> fetchMessages() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -37,11 +36,11 @@ class MessageProvider with ChangeNotifier {
       _messages = jsonData.map<Message>((messageData) {
         // Enrich the data with sender information
         final int senderId = messageData['sender'] ?? 0;
-        final senderName = messageData['sender_name']?.isNotEmpty == true 
-            ? messageData['sender_name'] 
+        final senderName = messageData['sender_name']?.isNotEmpty == true
+            ? messageData['sender_name']
             : _senderInfo[senderId]?['name'] ?? 'Unknown Sender';
         final senderRole = _senderInfo[senderId]?['role'] ?? 'Unknown';
-        
+
         // Create additional fields needed for our Message model
         Map<String, dynamic> enrichedData = {
           ...messageData,
@@ -50,7 +49,7 @@ class MessageProvider with ChangeNotifier {
           'sender_id': senderId,
           'content': messageData['body'], // Map 'body' to 'content'
         };
-        
+
         return Message.fromJson(enrichedData);
       }).toList();
 
@@ -58,7 +57,6 @@ class MessageProvider with ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
-    
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
@@ -78,7 +76,7 @@ class MessageProvider with ChangeNotifier {
         notifyListeners();
 
         // Then update on the server
-        await _messageService.markAsRead(messageId);
+        await _messageService.markAsRead(int.parse(messageId));
       }
     } catch (e) {
       print('Error marking message as read: $e');
@@ -95,7 +93,8 @@ class MessageProvider with ChangeNotifier {
   // Archive a message
   Future<bool> archiveMessage(String messageId) async {
     try {
-      final success = await _messageService.archiveMessage(messageId);
+      final success =
+          await _messageService.archiveMessage(int.parse(messageId));
       if (success) {
         // Remove from local list
         _messages.removeWhere((msg) => msg.id == messageId);
@@ -111,7 +110,7 @@ class MessageProvider with ChangeNotifier {
   // Delete a message
   Future<bool> deleteMessage(String messageId) async {
     try {
-      final success = await _messageService.deleteMessage(messageId);
+      final success = await _messageService.deleteMessage(int.parse(messageId));
       if (success) {
         // Remove from local list
         _messages.removeWhere((msg) => msg.id == messageId);

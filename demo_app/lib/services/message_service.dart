@@ -32,25 +32,28 @@ class MessageService {
       if (response.statusCode == 200) {
         // Decode the JSON response
         final responseData = jsonDecode(response.body);
-        
+
         // Ensure response is a Map
         if (responseData is Map<String, dynamic>) {
           // Check if error is false
           if (responseData['error'] == false) {
             // Extract the data field
             final messages = responseData['data'];
-            
+
             // Verify data is a List
             if (messages is List<dynamic>) {
               return messages;
             } else {
-              throw Exception('Invalid API response: "data" must be a list, got ${messages.runtimeType}');
+              throw Exception(
+                  'Invalid API response: "data" must be a list, got ${messages.runtimeType}');
             }
           } else {
-            throw Exception('API error: ${responseData['message'] ?? 'Unknown error'}');
+            throw Exception(
+                'API error: ${responseData['message'] ?? 'Unknown error'}');
           }
         } else {
-          throw Exception('Invalid API response: Expected a JSON object, got ${responseData.runtimeType}');
+          throw Exception(
+              'Invalid API response: Expected a JSON object, got ${responseData.runtimeType}');
         }
       } else {
         throw Exception('Failed to load messages: HTTP ${response.statusCode}');

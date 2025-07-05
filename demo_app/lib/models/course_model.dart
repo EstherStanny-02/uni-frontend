@@ -1,3 +1,4 @@
+
 class Course {
   final int id;
   final String title;
@@ -7,9 +8,9 @@ class Course {
   final String? description;
   final String iconName;
   final String colorCode;
-  final List<Map<String, dynamic>> documents;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final List<dynamic> documents;
+  final String createdAt;
+  final String updatedAt;
 
   Course({
     required this.id,
@@ -29,15 +30,16 @@ class Course {
     return Course(
       id: json['id'],
       title: json['title'],
-      courseCode: json['course_code'],
+      // FIXED: Changed from 'course_code' to 'module_code' to match API
+      courseCode: json['module_code'], 
       department: json['department'],
       departmentName: json['department_name'],
       description: json['description'],
       iconName: json['icon_name'],
       colorCode: json['color_code'],
-      documents: List<Map<String, dynamic>>.from(json['documents'] ?? []),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      documents: json['documents'] ?? [],
+      createdAt: json['created_at'],
+      updatedAt: json['updated_at'],
     );
   }
 
@@ -45,15 +47,15 @@ class Course {
     return {
       'id': id,
       'title': title,
-      'course_code': courseCode,
+      'module_code': courseCode,
       'department': department,
       'department_name': departmentName,
       'description': description,
       'icon_name': iconName,
       'color_code': colorCode,
       'documents': documents,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 }

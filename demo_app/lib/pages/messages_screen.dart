@@ -17,10 +17,10 @@ class _MessageScreenState extends State<MessageScreen> {
   final UserPreferences _userPreferences = UserPreferences();
   bool _isLoading = true;
   int _unreadCount = 0;
-  
+
   // Initialize our message service
   final MessageService _messageService = MessageService();
-   
+
   // Messages will be loaded from API
   List<Message> _messages = [];
 
@@ -39,10 +39,10 @@ class _MessageScreenState extends State<MessageScreen> {
     try {
       // Use the MessageService to call our API
       final messagesJson = await _messageService.getMessages();
-      
+
       // Parse the response
       final List<Message> loadedMessages = _parseMessages(messagesJson);
-      
+
       setState(() {
         _messages = loadedMessages;
         _unreadCount = _messages.where((message) => !message.isRead).length;
@@ -70,13 +70,13 @@ class _MessageScreenState extends State<MessageScreen> {
         9: {'name': 'Admin Office', 'role': 'Administration'},
         // Add more mappings as needed
       };
-      
+
       final int senderId = messageData['sender'] ?? 0;
-      final senderName = messageData['sender_name']?.isNotEmpty == true 
-          ? messageData['sender_name'] 
+      final senderName = messageData['sender_name']?.isNotEmpty == true
+          ? messageData['sender_name']
           : senderInfo[senderId]?['name'] ?? 'Unknown Sender';
       final senderRole = senderInfo[senderId]?['role'] ?? 'Unknown';
-      
+
       // Create additional fields needed for our Message model
       Map<String, dynamic> enrichedData = {
         ...messageData,
@@ -85,7 +85,7 @@ class _MessageScreenState extends State<MessageScreen> {
         'sender_id': senderId,
         'content': messageData['body'], // Map 'body' to 'content'
       };
-      
+
       return Message.fromJson(enrichedData);
     }).toList();
   }
@@ -116,7 +116,7 @@ class _MessageScreenState extends State<MessageScreen> {
     try {
       // Call the API to mark the message as read
       bool success = await _messageService.markAsRead(messageId);
-      
+
       if (success) {
         setState(() {
           final index = _messages.indexWhere((msg) => msg.id == messageId);
@@ -132,7 +132,7 @@ class _MessageScreenState extends State<MessageScreen> {
               senderId: _messages[index].senderId,
               imageUrl: _messages[index].imageUrl,
             );
-            
+
             // Replace the old message with the updated one
             _messages[index] = updatedMessage;
             _unreadCount = _messages.where((message) => !message.isRead).length;
@@ -149,13 +149,13 @@ class _MessageScreenState extends State<MessageScreen> {
   Future<void> _deleteMessage(int messageId) async {
     try {
       bool success = await _messageService.deleteMessage(messageId);
-      
+
       if (success) {
         setState(() {
           _messages.removeWhere((msg) => msg.id == messageId);
           _unreadCount = _messages.where((message) => !message.isRead).length;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Message deleted")),
         );
@@ -170,13 +170,13 @@ class _MessageScreenState extends State<MessageScreen> {
   Future<void> _archiveMessage(int messageId) async {
     try {
       bool success = await _messageService.archiveMessage(messageId);
-      
+
       if (success) {
         setState(() {
           _messages.removeWhere((msg) => msg.id == messageId);
           _unreadCount = _messages.where((message) => !message.isRead).length;
         });
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Message archived")),
         );
@@ -225,7 +225,8 @@ class _MessageScreenState extends State<MessageScreen> {
                 // User welcome banner with unread message count
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
                     color: Colors.blue[800],
                     boxShadow: [
@@ -251,7 +252,8 @@ class _MessageScreenState extends State<MessageScreen> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
@@ -287,10 +289,11 @@ class _MessageScreenState extends State<MessageScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Message filter options
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
@@ -327,7 +330,7 @@ class _MessageScreenState extends State<MessageScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Message list
                 Expanded(
                   child: _messages.isEmpty
@@ -344,7 +347,7 @@ class _MessageScreenState extends State<MessageScreen> {
                           ),
                         ),
                 ),
-                
+
                 // Information footer
                 Container(
                   width: double.infinity,
@@ -358,7 +361,8 @@ class _MessageScreenState extends State<MessageScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.info_outline, size: 14, color: Colors.grey[600]),
+                      Icon(Icons.info_outline,
+                          size: 14, color: Colors.grey[600]),
                       const SizedBox(width: 8),
                       Text(
                         "This is a read-only message center",
@@ -452,7 +456,7 @@ class _MessageScreenState extends State<MessageScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            
+
             // Message content preview
             Expanded(
               child: Column(
@@ -468,7 +472,9 @@ class _MessageScreenState extends State<MessageScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: message.isRead ? Colors.black87 : Colors.blue[800],
+                            color: message.isRead
+                                ? Colors.black87
+                                : Colors.blue[800],
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -498,19 +504,20 @@ class _MessageScreenState extends State<MessageScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Message title (extracted from content)
                   Text(
                     message.title,
                     style: TextStyle(
-                      fontWeight: message.isRead ? FontWeight.normal : FontWeight.bold,
+                      fontWeight:
+                          message.isRead ? FontWeight.normal : FontWeight.bold,
                       fontSize: 15,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Message preview
                   Text(
                     message.content,
@@ -577,7 +584,7 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
                     ),
                   ),
-                  
+
                   // Message header
                   Row(
                     children: [
@@ -615,9 +622,9 @@ class _MessageScreenState extends State<MessageScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Message title and timestamp
                   Text(
                     message.title,
@@ -634,9 +641,9 @@ class _MessageScreenState extends State<MessageScreen> {
                       color: Colors.grey[600],
                     ),
                   ),
-                  
+
                   const Divider(height: 32),
-                  
+
                   // Message content
                   Text(
                     message.content,
@@ -645,9 +652,9 @@ class _MessageScreenState extends State<MessageScreen> {
                       height: 1.5,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 36),
-                  
+
                   // Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -658,7 +665,9 @@ class _MessageScreenState extends State<MessageScreen> {
                         onPressed: () {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Reply not available in read-only mode")),
+                            const SnackBar(
+                                content: Text(
+                                    "Reply not available in read-only mode")),
                           );
                         },
                       ),
@@ -667,7 +676,8 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Archive",
                         onPressed: () {
                           Navigator.pop(context);
-                          _archiveMessage(message.id); // Remove the type casting
+                          _archiveMessage(
+                              message.id); // Remove the type casting
                         },
                       ),
                       _buildActionButton(
@@ -675,7 +685,7 @@ class _MessageScreenState extends State<MessageScreen> {
                         label: "Delete",
                         onPressed: () {
                           Navigator.pop(context);
-                          _deleteMessage(message.id as String);
+                          _deleteMessage(message.id);
                         },
                       ),
                     ],

@@ -150,8 +150,7 @@ class AuthProvider with ChangeNotifier {
       {required String currentPassword,
       required String newPassword,
       required String confirmPassword}) async {
-
-        developer.log('Change password method called in auth provider=========>: ');
+    developer.log('Change password method called in auth provider=========>: ');
     final Response response;
     if (currentPassword.isEmpty || newPassword.isEmpty) {
       throw Exception('Please provide current and new password');
@@ -164,12 +163,13 @@ class AuthProvider with ChangeNotifier {
     };
 
     try {
-
-      developer.log('try statement executed in auth provider change-password=========>: ');
+      developer.log(
+          'try statement executed in auth provider change-password=========>: ');
       SharedPreferences prefs = await SharedPreferences.getInstance();
       // Get user token for authorization
       final String accessToken = prefs.getString('access_token') ?? '';
-      developer.log('Access token in auth provider change-password=========>: $accessToken');
+      developer.log(
+          'Access token in auth provider change-password=========>: $accessToken');
       response = await http.put(
         Uri.parse(AppUrl.changePassword),
         headers: {
@@ -179,11 +179,14 @@ class AuthProvider with ChangeNotifier {
         body: jsonEncode(passwordData),
       );
 
-      developer.log('Response status in auth provider change-password=========>: ${response.statusCode}');
+      developer.log(
+          'Response status in auth provider change-password=========>: ${response.statusCode}');
 
-      developer.log('Response body in auth provider change-password=========>: ${response.body}');
+      developer.log(
+          'Response body in auth provider change-password=========>: ${response.body}');
 
-      developer.log('Final url in auth provider change-password=========>: ${AppUrl.changePassword}');
+      developer.log(
+          'Final url in auth provider change-password=========>: ${AppUrl.changePassword}');
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
         print('Password updated successfully: $result');

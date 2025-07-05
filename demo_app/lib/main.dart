@@ -1,5 +1,6 @@
 import 'package:demo_app/pages/splash_screen.dart';
 import 'package:demo_app/providers/auth_provider.dart';
+import 'package:demo_app/services/department_service.dart';
 import 'package:demo_app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,26 +11,19 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
-    // MultiProvider(
-    //   providers: [
-    //     ChangeNotifierProvider(create: (_) => AuthProvider()),
-    //     ChangeNotifierProvider(create: (_) => UserProvider()),
-    //   ],
-    //   child: const MyApp(),
-    // ),
     DevicePreview(
-      // enabled: !kIsWeb,
+      enabled: true,
       builder: (context) => MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => UserProvider()),
+          ChangeNotifierProvider(create: (_) => DepartmentProvider()),
         ],
         child: const MyApp(),
       ),
     ),
   );
 }
- 
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

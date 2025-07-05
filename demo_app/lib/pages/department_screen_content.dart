@@ -1,14 +1,13 @@
-import 'package:demo_app/models/department.dart';
+import 'package:demo_app/models/course_modal.dart';
 import 'package:demo_app/pages/course_details_screen.dart';
 import 'package:flutter/material.dart';
-
 
 class DepartmentScreenContent extends StatelessWidget {
   final List<Course> courses;
   final String departmentName;
 
   const DepartmentScreenContent({
-    super.key, 
+    super.key,
     required this.courses,
     required this.departmentName,
   });
@@ -20,8 +19,8 @@ class DepartmentScreenContent extends StatelessWidget {
         title: Text('$departmentName Courses'),
         centerTitle: true,
       ),
-      body: courses.isEmpty 
-          ? _buildEmptyCourses() 
+      body: courses.isEmpty
+          ? _buildEmptyCourses()
           : ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: courses.length,
@@ -33,7 +32,8 @@ class DepartmentScreenContent extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CourseDetailsScreen(course: course),
+                        builder: (context) =>
+                            CourseDetailsScreen(course: course),
                       ),
                     );
                   },
@@ -127,7 +127,7 @@ class CourseListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final courseColor = _getColorFromHex(course.colorCode);
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -192,5 +192,3 @@ class CourseListItem extends StatelessWidget {
   }
 }
 
-
-// changed file. Added one line to check new changes
