@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:demo_app/models/course_modal.dart';
+import 'package:demo_app/models/department.dart';
 import 'package:demo_app/services/app_url.dart';
 import 'package:http/http.dart' as http;
 

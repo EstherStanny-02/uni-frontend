@@ -1,4 +1,3 @@
-import 'package:demo_app/models/course_modal.dart';
 import 'package:demo_app/models/department.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
