@@ -182,19 +182,15 @@ class DepartmentScreenState extends State<DepartmentScreen> {
         });
       }
     } catch (e) {
-      print('Error loading departments: $e. Using mock data.');
-      // Use mock data if API call fails
-      final departments = _getMockDepartments();
-
+      developer.log('Error loading departments: $e');
       setState(() {
-        _departments = departments;
-        _filteredDepartments = departments;
         _isLoading = false;
+        _hasError = true;
       });
     }
   }
 
-  // New method to fetch departments directly from API for web platforms
+  // Fetch departments directly from API for web platforms
   Future<List<Department>> _fetchDepartmentsDirectlyFromApi() async {
     try {
       final response = await http.get(Uri.parse(AppUrl.departments));
@@ -211,90 +207,6 @@ class DepartmentScreenState extends State<DepartmentScreen> {
       developer.log('Error in direct API call: $e');
       rethrow; // Re-throw to be caught by the caller
     }
-  }
-
-  // Mock data for testing or when API is unavailable
-  List<Department> _getMockDepartments() {
-    // Current timestamp for created_at and updated_at fields
-    final now = DateTime.now().toIso8601String();
-
-    return [
-      Department(
-        id: 1,
-        name: 'Computer Science',
-        code: 'CS',
-        description: 'Department of Computer Science and Engineering',
-        logo:
-            'https://example.com/cs.png', // This will fail to load and show the fallback
-        courses: [
-          Course(
-            id: 101,
-            title: 'Introduction to Programming',
-            courseCode: 'CS101',
-            department: 1,
-            departmentName: 'Computer Science',
-            description: 'Fundamentals of programming using Python',
-            iconName: 'computer_outlined',
-            colorCode: '#4285F4',
-            documents: [],
-            createdAt: now,
-            updatedAt: now,
-          ),
-        ],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 2,
-        name: 'Electrical Engineering',
-        code: 'EE',
-        description: 'Department of Electrical Engineering',
-        logo: 'https://example.com/ee.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 3,
-        name: 'Business Administration',
-        code: 'BA',
-        description: 'Department of Business Administration',
-        logo: 'https://example.com/ba.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 4,
-        name: 'Mechanical Engineering',
-        code: 'ME',
-        description: 'Department of Mechanical Engineering',
-        logo: 'https://example.com/me.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 5,
-        name: 'Mathematics',
-        code: 'MATH',
-        description: 'Department of Mathematics',
-        logo: 'https://example.com/math.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-      Department(
-        id: 6,
-        name: 'Physics',
-        code: 'PHYS',
-        description: 'Department of Physics',
-        logo: 'https://example.com/phys.png',
-        courses: [],
-        createdAt: now,
-        updatedAt: now,
-      ),
-    ];
   }
 
   void _searchDepartments(String query) {
@@ -346,7 +258,7 @@ class DepartmentScreenState extends State<DepartmentScreen> {
     );
   }
 
-  // Helper method to get a color based on department name (for demo purpose)
+  // Helper method to get a color based on department name
   Color _getDepartmentColor(String name) {
     // Simple hash function to generate color based on name
     int hash = name.codeUnits.fold(0, (a, b) => a + b);
@@ -465,6 +377,12 @@ class DepartmentScreenState extends State<DepartmentScreen> {
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
+                              const Text(
+                                "Please check your internet connection and try again",
+                                style: TextStyle(color: Colors.grey),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
                               ElevatedButton(
                                 onPressed: _loadDepartments,
                                 child: const Text("Try Again"),
@@ -481,10 +399,20 @@ class DepartmentScreenState extends State<DepartmentScreen> {
                                       color: Colors.grey[400], size: 60),
                                   const SizedBox(height: 16),
                                   Text(
-                                    "No departments found",
+                                    _departments.isEmpty
+                                        ? "No departments available"
+                                        : "No departments found",
                                     style: TextStyle(
                                         fontSize: 18, color: Colors.grey[600]),
                                   ),
+                                  if (_departments.isEmpty)
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        "Please contact your administrator",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
                                 ],
                               ),
                             )
@@ -553,7 +481,6 @@ class DepartmentScreenState extends State<DepartmentScreen> {
 
     return InkWell(
       onTap: () {
-        // Show a temporary message that courses would be shown here
         Navigator.push(
         context,
         MaterialPageRoute(

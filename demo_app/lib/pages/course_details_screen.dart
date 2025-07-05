@@ -737,7 +737,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(document['title'] ?? 'Document Preview'),
-        content: Text('Preview functionality will be implemented here.'),
+        content: const Text('Preview functionality will be implemented here.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
