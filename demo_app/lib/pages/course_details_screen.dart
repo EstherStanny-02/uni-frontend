@@ -1,6 +1,6 @@
-import 'package:demo_app/models/department.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:demo_app/models/department.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -753,7 +753,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(document['title'] ?? 'Document Preview'),
-        content: Text('Preview functionality will be implemented here.'),
+        content: const Text('Preview functionality will be implemented here.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

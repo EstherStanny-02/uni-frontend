@@ -191,4 +191,3 @@ class CourseListItem extends StatelessWidget {
     );
   }
 }
-

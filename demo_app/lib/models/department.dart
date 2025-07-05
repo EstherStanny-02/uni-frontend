@@ -87,7 +87,7 @@ class Course {
       id: json['id'],
       title: json['title'],
       // FIXED: Changed from 'course_code' to 'module_code' to match API
-      courseCode: json['module_code'], 
+      courseCode: json['module_code'],
       department: json['department'],
       departmentName: json['department_name'],
       description: json['description'],
